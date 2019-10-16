@@ -1,0 +1,10 @@
+{
+    "name": "thiagofleal/tonight-php",
+    "authors": [
+        {
+            "name": "Thiago Fernandes Leal",
+            "email": "thiagofernandesleal@yahoo.com.br"
+        }
+    ],
+    "require": {}
+}
