@@ -6,5 +6,10 @@
             "email": "thiagofernandesleal@yahoo.com.br"
         }
     ],
-    "require": {}
+    "require": {},
+    "autoload": {
+    	"psr-4": {
+            "Tonight\\":"src/"
+    	}
+    }
 }
