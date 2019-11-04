@@ -21,8 +21,8 @@ class ArrayList {
 		$this->updateSize();
 	}
 
-	public function get($key = NULL) {
-		return $key ? $this->data[$key] : $this->data;
+	public function get($key = -1) {
+		return $key !== -1 ? $this->data[$key] : $this->data;
 	}
 
 	public function set($key, $value) {
@@ -31,20 +31,27 @@ class ArrayList {
 	}
 
 	public function remove($key) {
-		unset($this->data[$key]);
-		$this->updateSize();
+		if($key !== false && isset($this->data[$key])) {
+			unset($this->data[$key]);
+			$this->updateSize();
+			return $key;
+		}
+		return false;
 	}
 
 	public function removeFirst($value) {
-		if(($key = array_search($value, $this->data)) != -1) {
+		if(($key = array_search($value, $this->data)) !== false) {
 			$this->remove($key);
+			return true;
 		}
+		return false;
 	}
 
 	public function removeAll($value) {
-		while(($key = array_search($value, $this->data)) != -1) {
-			$this->remove($key);
-		}
+		$loop = false;
+		do{
+			$loop = $this->removeFirst($value);
+		}while($loop);
 	}
 
 	public function append($value) {
@@ -55,21 +62,12 @@ class ArrayList {
 		return $this->size;
 	}
 
-	public function copy() {
-		$arr = array();
-		foreach ($this->data as $key => $value) {
-			$arr[$key] = $value;
-		}
-		return new self($arr);
-	}
-
 	public function select(callable $sel) {
 		$ret = array();
 		foreach($this->data as $value) {
 			$ret[] = $sel( $value );
 		}
-		$this->setData($ret);
-		return $this;
+		return new self($ret);
 	}
 
 	public function where(callable $cond) {
@@ -79,7 +77,50 @@ class ArrayList {
 				$ret[] = $value;
 			}
 		}
-		$this->setData($ret);
-		return $this;
+		return new self($ret);
+	}
+
+	public function order(callable $func) {
+		$ret = array_map( function($value) {
+			return $value;
+		}, $this->data);
+		usort($ret, $func);
+		return new self($ret);
+	}
+
+	public function join(ArrayList $other, callable $on, $required = false) {
+		$ret = array();
+		$default = NULL;
+		if($required) {
+			$model = $other->get(0);
+			if(is_array($model)) {
+				$default = array();
+				foreach ($model as $key => $value) {
+					$default[$key] = NULL;
+				}
+			}
+		}
+		foreach ($this->data as $left) {
+			$mark = false;
+			foreach ($other->get() as $right) {
+				if( $on($left, $right) ) {
+					if(is_array($left) && is_array($right)) {
+						$ret[] = array_merge($left, $right);
+					} else {
+						$ret[] = array($left, $right);
+					}
+					$mark = true;
+					break;
+				}
+			}
+			if(!$mark && $required) {
+				if(is_array($left)) {
+					$ret[] = array_merge($left, $default);
+				} else {
+					$ret[] = array($left, NULL);
+				}
+			}
+		}
+		return new self($ret);
 	}
 }
