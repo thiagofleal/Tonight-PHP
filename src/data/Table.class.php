@@ -55,13 +55,9 @@ class Table extends ArrayList {
 		}
 	}
 
-	public function removeValue($arg) {
-		if(is_array($arg)){
-			foreach ($arg as $value) {
-				$this->removeFirst($value);
-			}
-		} else {
-			$this->removeFirst($arg);
+	public function removeArray(array $arg) {
+		foreach ($arg as $value) {
+			$this->removeFirst($value);
 		}
 	}
 

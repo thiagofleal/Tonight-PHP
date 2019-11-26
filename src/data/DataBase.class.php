@@ -4,17 +4,34 @@ namespace Tonight\Data;
 
 abstract class DataBase extends \PDO {
 
-	protected $PKquery;
-	protected $FKquery;
-	
+	protected $tableNames;
+
 	public function __construct(...$args) {
 		parent::__construct(...$args);
+		$this->tableNames = $this->getTables();
+		foreach ($this->tableNames as $value) {
+			$this->{$value} = new Table($this, $value);
+		}
 	}
 
 	public abstract function identifier(string $str);
+	public abstract function tablesSelectQuery();
+	public abstract function primaryKeysSelectQuery(string $table);
+	public abstract function foreignKeysSelectQuery(string $table);
+
+	public function tableNames() { return $this->tableNames; }
+
+	public function getTables($mode = \PDO::FETCH_OBJ) {
+		$sql = $this->tablesSelectQuery();
+		$sql = $this->query($sql);
+		if($sql->rowCount()) {
+			return $sql->fetch($mode);
+		}
+		return array();
+	}
 
 	public function getPrimaryKeys(string $table, $mode = \PDO::FETCH_OBJ) {
-		$sql = $this->PKquery."'".$table."'";
+		$sql = $this->primaryKeysSelectQuery($table);
 		$sql = $this->query($sql);
 		if($sql->rowCount()) {
 			return $sql->fetch($mode);
@@ -23,7 +40,7 @@ abstract class DataBase extends \PDO {
 	}
 
 	public function getForeignKeys(string $table, $mode = \PDO::FETCH_OBJ) {
-		$sql = $this->FKquery."'".$table."'";
+		$sql = $this->foreignKeysSelectQuery($table);
 		$sql = $this->query($sql);
 		if($sql->rowCount()) {
 			return $sql->fetch($mode);
