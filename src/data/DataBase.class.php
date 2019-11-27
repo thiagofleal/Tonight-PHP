@@ -6,12 +6,10 @@ abstract class DataBase extends \PDO {
 
 	protected $tableNames;
 
-	public function __construct(...$args, $start = true) {
+	public function __construct(...$args) {
 		parent::__construct(...$args);
 		$this->tableNames = $this->getTables();
-		if($start) {
-			$this->start();
-		}
+		$this->start();
 	}
 
 	public function start() {
