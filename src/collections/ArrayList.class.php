@@ -48,10 +48,7 @@ class ArrayList {
 	}
 
 	public function removeAll($value) {
-		$loop = false;
-		do{
-			$loop = $this->removeFirst($value);
-		}while($loop);
+		while($this->removeFirst($value)) {}
 	}
 
 	public function append($value) {
