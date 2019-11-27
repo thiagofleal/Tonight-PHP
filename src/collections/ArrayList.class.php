@@ -11,7 +11,6 @@ class ArrayList {
 		$this->size = count($this->data);
 	}
 
-	/* Public interface */
 	public function __construct(array $data = array()) {
 		$this->setData($data);
 	}
