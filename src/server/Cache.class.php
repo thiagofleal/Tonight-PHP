@@ -55,7 +55,8 @@ class Cache {
 			$this->data = array();
 			$this->type = 2;
 			ob_start();
-			$this->page = require $page;
+			require $page;
+			$this->page = ob_get_contents();
 			ob_end_clean();
 		}
 	}
