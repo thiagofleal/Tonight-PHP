@@ -13,7 +13,7 @@ class Template {
 	public function setFileName(string $filename) { $this->filename = $filename; }
 	public function getFileName() { return $this->filename; }
 
-	private static function loadFile(string $filename, $data = array(), $content = NULL) {
+	private static function loadFile(string $filename, $data = array(), $content = NULL, $ignore = false) {
 		if(file_exists($filename)) {
 			$page = file_get_contents($filename);
 			if($content) {
@@ -22,15 +22,16 @@ class Template {
 			foreach ($data as $key => $value) {
 				$page = str_replace("{{".$key."}}", $value, $page);
 			}
-			$page = str_replace("\\{", "{", $page);
-			$page = str_replace("\\\\", "\\", $page);
+			if($ignore) {
+				$page = str_replace("\\{", "{", $page);
+			}
 			return $page;
 		}
 		return "";
 	}
 
 	public function load($data = array(), string $content = NULL) {
-		return self::loadFile($this->filename, $data, $content);
+		return self::loadFile($this->filename, $data, $content, true);
 	}
 
 	public function render($data = array(), string $content = NULL) {
