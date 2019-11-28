@@ -6,13 +6,10 @@ class Cache {
 
 	private $filename;
 	private $data;
-	private $page;
-	private $type;
+	private $type = 0;
 
 	private function __construct(string $filename) {
 		$this->filename = $filename;
-		$this->data = array();
-		$this->type = 0;
 	}
 
 	public static function file(string $filename) {
@@ -23,7 +20,7 @@ class Cache {
 		}
 		foreach ($files as $item) {
 			if($item['name'] == $filename) {
-				return $item['value']
+				return $item['value'];
 			}
 		}
 		$value = new self($filename);
@@ -31,16 +28,30 @@ class Cache {
 		return $value;
 	}
 
+	private function putContents($contents) {
+		$dir = explode("/", $this->filename);
+		array_pop($dir);
+		$dir = implode("/", $dir);
+
+		if(!is_dir($dir)) {
+			mkdir($dir);
+		}
+		
+		file_put_contents($this->filename, $contents);
+	}
+
 	public function set(string $id, $value) {
 		$this->data[$id] = $value;
-		$this->page = NULL;
-		$this->type = 1;
-		file_put_contents($this->filename, json_encode($this->data));
+		if($this->type != 1) {
+			$this->data = array();
+			$this->type = 1;
+		}
+		$this->putContents(json_encode($this->data));
 	}
 
 	public function get(string $id) {
 		$value = NULL;
-		if(file_exists($this->filename) && $this->type == 1) {
+		if(file_exists($this->filename) && $this->type != 2) {
 			$this->data = json_decode(file_get_contents($this->filename));
 
 			if(isset($this->data[$id])) {
@@ -50,29 +61,16 @@ class Cache {
 		return $value;
 	}
 
-	public function savePage(string $page) {
-		if(file_exists($page)) {
-			$this->data = array();
+	public function requirePage(string $page, $time = 0) {
+		if(!file_exists($this->filename) || $this->type == 1 || ($time && $time < time() - $this->time())) {
 			$this->type = 2;
 			ob_start();
 			require $page;
-			$this->page = ob_get_contents();
+			$this->data = ob_get_contents();
 			ob_end_clean();
+			$this->putContents($this->data);
 		}
-	}
-
-	public function getPageContent() {
-		if(file_exists($this->filename) && $this->type == 2) {
-			return $this->page;
-		}
-		return NULL;
-	}
-
-	public function loadPage() {
-		$page = $this->getPageContent();
-		if($page) {
-			echo $page;
-		}
+		require $this->filename;
 	}
 
 	public function time() {
