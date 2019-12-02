@@ -30,12 +30,12 @@ class Template {
 		return "";
 	}
 
-	public function load($data = array(), string $content = NULL) {
+	public function load(string $content = NULL, $data = array()) {
 		return self::loadFile($this->filename, $data, $content, true);
 	}
 
-	public function render($data = array(), string $content = NULL) {
-		$page = $this->load($data, $content);
+	public function render(string $content = NULL, $data = array()) {
+		$page = $this->load($content, $data);
 		echo $page;
 	}
 }
