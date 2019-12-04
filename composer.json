@@ -6,7 +6,12 @@
             "email": "thiagofernandesleal@yahoo.com.br"
         }
     ],
-    "require": {},
+    "type":"library",
+    "version":"0.1.0",
+    "minimum-stability":"dev",
+    "require": {
+        "php":"*"
+    },
     "autoload": {
     	"psr-4": {
             "Tonight\\":"src/"
