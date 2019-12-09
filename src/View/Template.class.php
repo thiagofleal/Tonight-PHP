@@ -69,6 +69,7 @@ class Template {
 
 	public function requireView() {
 		if(file_exists($this->required)) {
+			extract($this->data);
 			return require $this->required;
 		}
 	}
