@@ -34,6 +34,10 @@ class Session {
 		$_SESSION['_Flash'][$key] = $value;
 	}
 
+	public static function issetFlash($key) {
+		return isset($_SESSION['_Flash'][$key]);
+	}
+
 	public static function getFlash($key) {
 		$ret = $_SESSION['_Flash'][$key];
 		unset($_SESSION['_Flash'][$key]);
