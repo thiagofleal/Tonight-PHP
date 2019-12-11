@@ -20,6 +20,16 @@ class Session {
 		unset($_SESSION[$key]);
 	}
 
+	public static function isset($key) {
+		return isset($_SESSION[$key]);
+	}
+
+	public static function setEmpty($key, $value) {
+		if(!isset($_SESSION[$key])){
+			$_SESSION[$key] = $value;
+		}
+	}
+
 	public static function setFlash($key, $value) {
 		$_SESSION['_Flash'][$key] = $value;
 	}
