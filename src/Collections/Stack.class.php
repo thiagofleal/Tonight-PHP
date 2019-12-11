@@ -2,7 +2,7 @@
 
 namespace Tonight\Collections;
 
-class Stack {
+class Stack extends Collection {
 
 	private $data;
 	private $size;
@@ -13,6 +13,27 @@ class Stack {
 
 	public function __construct(array $data = array()) {
 		$this->setData($data);
+		$this->rewind();
+	}
+
+	public function current() {
+		return $this->data[array_keys($this->data)[$this->current]];
+	}
+
+	public function key() {
+		return array_keys($this->data)[$this->current];
+	}
+
+	public function next() {
+		$this->current--;
+	}
+
+	public function rewind() {
+		$this->current = $this->size - 1;
+	}
+
+	public function valid() {
+		return $this->current >= 0;
 	}
 
 	public function setData(array $data) {

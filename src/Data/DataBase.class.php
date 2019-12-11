@@ -8,11 +8,18 @@ abstract class DataBase extends \PDO {
 
 	public function __construct(...$args) {
 		parent::__construct(...$args);
-		$this->tableNames = $this->getTables();
-		$this->start();
 	}
 
-	public function start() {
+	public function start($tables = NULL) {
+		if($tables == NULL) {
+			$this->tableNames = $this->getTables();
+		}
+		if(is_string($tables)) {
+			$this->tableNames = array($tables);
+		}
+		if(is_array($tables)) {
+			$this->tableNames = $tables;
+		}
 		foreach ($this->tableNames as $value) {
 			$this->{$value} = new Table($this, $value);
 		}

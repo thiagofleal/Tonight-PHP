@@ -2,10 +2,11 @@
 
 namespace Tonight\Collections;
 
-class ArrayList {
+class ArrayList extends Collection {
 
 	private $data;
 	private $size;
+	private $current;
 
 	private function updateSize() {
 		$this->size = count($this->data);
@@ -13,6 +14,27 @@ class ArrayList {
 
 	public function __construct(array $data = array()) {
 		$this->setData($data);
+		$this->rewind();
+	}
+
+	public function current() {
+		return $this->data[array_keys($this->data)[$this->current]];
+	}
+
+	public function key() {
+		return array_keys($this->data)[$this->current];
+	}
+
+	public function next() {
+		$this->current++;
+	}
+
+	public function rewind() {
+		$this->current = 0;
+	}
+
+	public function valid() {
+		return $this->current < $this->size;
 	}
 
 	public function setData(array $data) {
@@ -27,6 +49,10 @@ class ArrayList {
 	public function set($key, $value) {
 		$this->data[$key] = $value;
 		$this->updateSize();
+	}
+
+	public function isset($key) {
+		return isset($this->data[$key]);
 	}
 
 	public function remove($key) {
@@ -111,7 +137,7 @@ class ArrayList {
 			}
 			if(!$mark && $required) {
 				if(is_array($left)) {
-					$ret[] = array_merge($left, $default);
+					$ret[] = array_merge($left, array_diff_key($default, $left));
 				} else {
 					$ret[] = array($left, NULL);
 				}

@@ -13,11 +13,10 @@ class Template {
 		$this->data = array();
 	}
 
-
-	public function setFileName(string $filename) { $this->filename = $filename; }
 	public function getFileName() { return $this->filename; }
-	public function setData($data) { $this->data = $data; }
+	public function setFileName(string $filename) { $this->filename = $filename; }
 	public function getData() { return $this->data; }
+	public function setData($data) { $this->data = $data; }
 	public function getRequired() { return $this->required; }
 	public function setRequired($required) { $this->required = $required; }
 
