@@ -10,10 +10,7 @@ abstract class DataBase extends \PDO {
 		parent::__construct(...$args);
 	}
 
-	public function start($tables = NULL) {
-		if($tables == NULL) {
-			$this->tableNames = $this->getTables();
-		}
+	public function start($tables) {
 		if(is_string($tables)) {
 			$this->tableNames = array($tables);
 		}
@@ -26,21 +23,11 @@ abstract class DataBase extends \PDO {
 	}
 
 	public abstract function identifier(string $str);
-	public abstract function tablesSelectQuery();
 	public abstract function primaryKeysSelectQuery(string $table);
 	public abstract function foreignKeysSelectQuery(string $table);
 
 	public function tableNames() { return $this->tableNames; }
-
-	public function getTables($mode = \PDO::FETCH_OBJ) {
-		$sql = $this->tablesSelectQuery();
-		$sql = $this->query($sql);
-		if($sql->rowCount()) {
-			return $sql->fetch($mode);
-		}
-		return array();
-	}
-
+	
 	public function getPrimaryKeys(string $table, $mode = \PDO::FETCH_OBJ) {
 		$sql = $this->primaryKeysSelectQuery($table);
 		$sql = $this->query($sql);

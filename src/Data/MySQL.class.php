@@ -16,12 +16,6 @@ class MySQL extends DataBase {
 		return "`$str`";
 	}
 
-	public function tablesSelectQuery() {
-		return "SELECT `table_name` 
-			FROM `information_schema`.`tables` 
-			WHERE `table_schema`='".$this->dbName."'";
-	}
-
 	public function primaryKeysSelectQuery(string $table) {
 		return "SELECT `key_column_usage`.`column_name` 
 			FROM `information_schema`.`key_column_usage` 
