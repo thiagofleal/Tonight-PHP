@@ -4,12 +4,11 @@ namespace Tonight\Data;
 
 class MySQL extends DataBase {
 
-	private $dbName;
-
-	public function __construct($name, $host, ...$args) {
-		$con = "mysql:dbname=$name;host=$host";
-		$this->dbName = $name;
-		parent::__construct($con, ...$args);
+	public function __construct($dsn, ...$args) {
+		if(is_array($dsn)) {
+			$dsn['driver'] = 'mysql';
+		}
+		parent::__construct($dsn, ...$args);
 	}
 
 	public function identifier(string $str) {

@@ -39,12 +39,10 @@ class Table extends ArrayList {
 
 	public function setValue($value) {
 		if(($key = array_search($value, $this->get())) !== false) {
-			$this->sets[] =
-				"UPDATE ".$this->idName.
-				" SET ".implode(", ", array_map(function($key, $value) {
-					return $this->db->identifier($key)."='".addslashes($value)."'";
-				}, array_keys((array)$this->get($key)), (array)$this->get($key))).
-				" WHERE ".$this->pkValues($key);
+			$this->sets[] = array(
+				"key" => $key,
+				"value" => $value
+			);
 		}
 	}
 
@@ -76,8 +74,11 @@ class Table extends ArrayList {
 
 	public function update() {
 		if(count($this->sets)) {
-			foreach ($this->sets as $value) {
-				$sql = $value;
+			foreach ($this->sets as $item) {
+				$sql = "UPDATE ".$this->idName." SET ".implode(", ", array_map( function($key, $value) {
+					return $this->db->identifier($item["key"])."='".addslashes($item["value"])."'";
+				}, array_keys((array)$this->get($item["key"])), (array)$this->get($item["key"]))).
+				" WHERE ".$this->pkValues($item["key"]);
 				$this->db->query($sql);
 			}
 			$this->sets = array();
