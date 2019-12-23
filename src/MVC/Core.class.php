@@ -73,7 +73,10 @@ class Core {
 
 	public function run() {
 		$request = new Request(Request::GET);
-		$url = $request->get($this->arg, $this->defaultPage);
+		$url = $request->get($this->arg, '');
+		if(empty($url)) {
+			$url = $this->defaultPage;
+		}
 		$arg = explode("/", $url);
 		$controller = array_shift($arg).$this->sufix;
 		$action = isset($arg[0]) ? array_shift($arg) : $this->defaultAction;
