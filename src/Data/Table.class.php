@@ -76,7 +76,7 @@ class Table extends ArrayList {
 		if(count($this->sets)) {
 			foreach ($this->sets as $item) {
 				$sql = "UPDATE ".$this->idName." SET ".implode(", ", array_map( function($key, $value) {
-					return $this->db->identifier($item["key"])."='".addslashes($item["value"])."'";
+					return $this->db->identifier($key)."='".addslashes($value)."'";
 				}, array_keys((array)$this->get($item["key"])), (array)$this->get($item["key"]))).
 				" WHERE ".$this->pkValues($item["key"]);
 				$this->db->query($sql);
