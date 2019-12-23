@@ -35,6 +35,6 @@ class BaseController {
 	}
 
 	public function renderView(string $page) {
-		$this->template->require($this->getDirectory().$page.'.'.$this->getExtension());
+		$this->template->require($this->getDirectory().'/'.$page.'.'.$this->getExtension());
 	}
 }
