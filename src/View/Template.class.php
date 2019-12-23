@@ -8,17 +8,23 @@ class Template {
 	private $data;
 	private $required;
 
-	public function __construct(string $filename) {
+	public function __construct(string $filename = '') {
 		$this->setFileName($filename);
 		$this->data = array();
 	}
 
 	public function getFileName() { return $this->filename; }
-	public function setFileName(string $filename) { $this->filename = $filename; }
+	public function setFileName(string $filename) {
+		if(file_exists($filename)) {
+			$this->filename = $filename;
+		}
+	}
+	
 	public function getData() { return $this->data; }
-	public function setData($data) { $this->data = $data; }
+	public function setData(array $data) { $this->data = $data; }
+	
 	public function getRequired() { return $this->required; }
-	public function setRequired($required) { $this->required = $required; }
+	public function setRequired(string $required) { $this->required = $required; }
 
 	public function setVariable(string $varName, $value) {
 		$this->data[$varName] = $value;
@@ -55,15 +61,15 @@ class Template {
 	}
 
 	public function require(string $file) {
-		$filename = $this->filename;
-		if($file) {
+		$filename = $this->getFilename();
+		if(!empty($file)) {
 			$this->setRequired($file);
 		}
 		if(file_exists($filename)) {
 			extract($this->data);
 			return require $filename;
 		}
-		return require $this->getFilename();
+		return false;
 	}
 
 	public function requireView() {
@@ -71,5 +77,6 @@ class Template {
 			extract($this->data);
 			return require $this->required;
 		}
+		return false;
 	}
 }
