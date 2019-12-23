@@ -12,8 +12,13 @@ class Controller {
 		$this->setTemplate($template);
 	}
 
-	public function setTemplate(Template $template) {
-		$this->template = $template ?? new Template;
+	public function setTemplate($template) {
+		if($template instanceof Template) {
+			$this->template = $template;
+		}
+		else {
+			$this->template = new Template;
+		}
 	}
 
 	public function setVariable(string $key, $value) {
