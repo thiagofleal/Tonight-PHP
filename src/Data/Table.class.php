@@ -76,7 +76,9 @@ class Table extends ArrayList {
 		if(count($this->sets)) {
 			foreach ($this->sets as $item) {
 				$sql = "UPDATE ".$this->idName." SET ".implode(", ", array_map( function($key, $value) {
-					return $this->db->identifier($key)."='".addslashes($value)."'";
+					return empty($value)
+						? ''
+						: $this->db->identifier($key)."='".addslashes($value)."'";
 				}, array_keys((array)$this->get($item["key"])), (array)$this->get($item["key"]))).
 				" WHERE ".$this->pkValues($item["key"]);
 				$this->db->query($sql);
@@ -91,11 +93,11 @@ class Table extends ArrayList {
 		if(count($this->inserts)) {
 			foreach ($this->inserts as $value) {
 				$sql = "INSERT INTO ".$this->idName
-				." (".implode(", ", array_map( function($key) {
-					return $this->db->identifier($key);
-				}, array_keys($this->get($value))))
+				." (".implode(", ", array_map( function($key, $value) {
+					return empty($value) ? '' : $this->db->identifier($key);
+				}, array_keys($this->get($value)), $this->get($value)))
 				.") VALUES(".implode(", ", array_map( function($value) {
-					return "'".addslashes($value)."'";
+					return empty($value) ? '' : "'".addslashes($value)."'";
 				}, $this->get($value)))
 				.")";
 				$this->db->query($sql);
