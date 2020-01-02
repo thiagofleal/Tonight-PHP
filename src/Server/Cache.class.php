@@ -2,20 +2,22 @@
 
 namespace Tonight\Server;
 
-class Cache {
-
+class Cache
+{
 	private $filename;
 	private $data;
 	private $type = 0;
 
-	private function __construct(string $filename) {
+	private function __construct(string $filename)
+	{
 		$this->filename = $filename;
 	}
 
-	public static function file(string $filename) {
+	public static function file(string $filename)
+	{
 		static $files;
 
-		if(!isset($files)) {
+		if (!isset($files)) {
 			$files = array();
 		}
 		foreach ($files as $item) {
@@ -28,41 +30,45 @@ class Cache {
 		return $value;
 	}
 
-	private function putContents($contents) {
+	private function putContents($contents)
+	{
 		$dir = explode("/", $this->filename);
 		array_pop($dir);
 		$dir = implode("/", $dir);
 
-		if(!is_dir($dir)) {
+		if (!is_dir($dir)) {
 			mkdir($dir);
 		}
 		
 		file_put_contents($this->filename, $contents);
 	}
 
-	public function set(string $id, $value) {
+	public function set(string $id, $value)
+	{
 		$this->data[$id] = $value;
-		if($this->type != 1) {
+		if ($this->type != 1) {
 			$this->data = array();
 			$this->type = 1;
 		}
 		$this->putContents(json_encode($this->data));
 	}
 
-	public function get(string $id) {
+	public function get(string $id)
+	{
 		$value = NULL;
-		if(file_exists($this->filename) && $this->type != 2) {
+		if (file_exists($this->filename) && $this->type != 2) {
 			$this->data = json_decode(file_get_contents($this->filename));
 
-			if(isset($this->data[$id])) {
+			if (isset($this->data[$id])) {
 				$value = $this->data[$id];
 			}
 		}
 		return $value;
 	}
 
-	public function requirePage(string $page, $time = 0) {
-		if(!file_exists($this->filename) || $this->type == 1 || ($time && $time < time() - $this->time())) {
+	public function requirePage(string $page, $time = 0)
+	{
+		if (!file_exists($this->filename) || $this->type == 1 || ($time && $time < time() - $this->time())) {
 			$this->type = 2;
 			ob_start();
 			require $page;
@@ -73,8 +79,9 @@ class Cache {
 		require $this->filename;
 	}
 
-	public function time() {
-		if(file_exists($this->filename)) {
+	public function time()
+	{
+		if (file_exists($this->filename)) {
 			return filemtime($this->filename);
 		}
 	}

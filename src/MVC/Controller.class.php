@@ -2,39 +2,44 @@
 
 namespace Tonight\MVC;
 
-use Tonight\View\Template;
+class Controller
+{
+	private $view;
+	private $variables;
 
-class BaseController {
-
-	private $template;
-	private $directory = '';
-	private $extension = 'php';
-
-	public function __construct($template = NULL) {
-		$this->setTemplate($template);
+	public function __construct()
+	{
+		$this->variables = array();
 	}
 
-	public function getTemplate() { return $this->template; }
-	public function setTemplate($template) {
-		if($template instanceof Template) {
-			$this->template = $template;
+	protected function setVariable($key, $value)
+	{
+		$this->variables[$key] = $value;
+	}
+
+	protected function setView(string $view)
+	{
+		$this->view = Config::getViewsPath() . '/' . $view . '.' . Config::getViewsExtension();
+	}
+
+	protected function content()
+	{
+		extract($this->variables);
+		return require $this->view;
+	}
+
+	private function getTemplateFrom($template)
+	{
+		return Config::getTemplatesPath() . '/' . $template . '.' . Config::getViewsExtension();
+	}
+
+	protected function render($page, $template = false)
+	{
+		$this->setView($page);
+		if ($template) {
+			extract($this->variables);
+			return require $this->getTemplateFrom($template);
 		}
-		else {
-			$this->template = new Template;
-		}
-	}
-
-	public function getDirectory() { return $this->directory; }
-	public function setDirectory(string $directory) { $this->directory = $directory; }
-
-	public function getExtension() { return $this->extension; }
-	public function setExtension(string $extendion) { $this->extendion = $extendion; }
-
-	public function setVariable(string $key, $value) {
-		$this->template->setVariable($key, $value);
-	}
-
-	public function renderView(string $page) {
-		$this->template->require($this->getDirectory().'/'.$page.'.'.$this->getExtension());
+		return $this->content();
 	}
 }

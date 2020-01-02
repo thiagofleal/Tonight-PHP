@@ -4,8 +4,8 @@ namespace Tonight\Data;
 
 use \Tonight\Collections\ArrayList;
 
-class Table extends ArrayList {
-
+class Table extends ArrayList
+{
 	private $db;
 	private $name;
 	private $idName;
@@ -16,14 +16,16 @@ class Table extends ArrayList {
 	private $deletes;
 	private $inserts;
 
-	private function updateData() {
+	private function updateData()
+	{
 		$sql = "SELECT * FROM ".$this->idName;
 		$sql = $this->db->query($sql);
 		$this->setData($sql->fetchAll($this->selectMode));
 	}
 
 	/* Public interface */
-	public function __construct(DataBase $db, string $name, $selectMode = \PDO::FETCH_OBJ) {
+	public function __construct(DataBase $db, string $name, $selectMode = \PDO::FETCH_OBJ)
+	{
 		parent::__construct();
 		$this->db = $db;
 		$this->name = $name;
@@ -37,8 +39,9 @@ class Table extends ArrayList {
 		$this->updateData();
 	}
 
-	public function setValue($value) {
-		if(($key = array_search($value, $this->get())) !== false) {
+	public function setValue($value)
+	{
+		if (($key = array_search($value, $this->get())) !== false) {
 			$this->sets[] = array(
 				"key" => $key,
 				"value" => $value
@@ -46,25 +49,29 @@ class Table extends ArrayList {
 		}
 	}
 
-	public function remove($key) {
-		if($key !== false) {
+	public function remove($key)
+	{
+		if ($key !== false) {
 			$this->deletes[] = $this->pkValues($key);
 			parent::remove($key);
 		}
 	}
 
-	public function removeArray(array $arg) {
+	public function removeArray(array $arg)
+	{
 		foreach ($arg as $value) {
 			$this->removeFirst($value);
 		}
 	}
 
-	public function append($value) {
+	public function append($value)
+	{
 		$this->inserts[] = $this->size();
 		parent::append($value);
 	}
 
-	public function pkValues($key) {
+	public function pkValues($key)
+	{
 		$ret = array();
 		foreach ($this->pk as $value) {
 			$ret[] = $this->db->identifier($value)."='".$this->get($key)->$value."'";
@@ -72,8 +79,9 @@ class Table extends ArrayList {
 		return implode(" AND ", $ret);
 	}
 
-	public function update() {
-		if(count($this->sets)) {
+	public function update()
+	{
+		if (count($this->sets)) {
 			foreach ($this->sets as $item) {
 				$sql = "UPDATE ".$this->idName." SET ".implode(", ", array_map( function($key, $value) {
 					return empty($value)
@@ -85,12 +93,12 @@ class Table extends ArrayList {
 			}
 			$this->sets = array();
 		}
-		if(count($this->deletes)) {
+		if (count($this->deletes)) {
 			$sql = "DELETE FROM ".$this->idName." WHERE ".implode(" OR ", $this->deletes);
 			$this->db->query($sql);
 			$this->deletes = array();
 		}
-		if(count($this->inserts)) {
+		if (count($this->inserts)) {
 			foreach ($this->inserts as $value) {
 				$sql = "INSERT INTO ".$this->idName
 				." (".implode(", ", array_map( function($key, $value) {

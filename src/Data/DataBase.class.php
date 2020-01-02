@@ -2,30 +2,32 @@
 
 namespace Tonight\Data;
 
-abstract class DataBase extends \PDO {
-
+abstract class DataBase extends \PDO
+{
 	protected $dbName;
 	protected $tableNames;
 
-	public function __construct($dsn, ...$args) {
+	public function __construct($dsn, ...$args)
+	{
 		$con = '';
-		if(is_array($dsn)) {
+		if (is_array($dsn)) {
 			$con = $dsn["driver"].":".implode(";", array_map( function($key, $value) {
 				return $key != 'driver' ? $key."=".$value : '';
 			}, array_keys($dsn), $dsn));
 			$this->dbName = $dsn["dbname"];
 		}
-		if(is_string($dsn)) {
+		if (is_string($dsn)) {
 			$con = $dsn;
 		}
 		parent::__construct($con, ...$args);
 	}
 
-	public function start($tables) {
-		if(is_string($tables)) {
+	public function start($tables)
+	{
+		if (is_string($tables)) {
 			$this->tableNames = array($tables);
 		}
-		if(is_array($tables)) {
+		if (is_array($tables)) {
 			$this->tableNames = $tables;
 		}
 		foreach ($this->tableNames as $value) {
@@ -40,19 +42,21 @@ abstract class DataBase extends \PDO {
 	public function dbName() { return $this->dbName; }
 	public function tableNames() { return $this->tableNames; }
 
-	public function getPrimaryKeys(string $table, $mode = \PDO::FETCH_OBJ) {
+	public function getPrimaryKeys(string $table, $mode = \PDO::FETCH_OBJ)
+	{
 		$sql = $this->primaryKeysSelectQuery($table);
 		$sql = $this->query($sql);
-		if($sql->rowCount()) {
+		if ($sql->rowCount()) {
 			return $sql->fetch($mode);
 		}
 		return array();
 	}
 
-	public function getForeignKeys(string $table, $mode = \PDO::FETCH_OBJ) {
+	public function getForeignKeys(string $table, $mode = \PDO::FETCH_OBJ)
+	{
 		$sql = $this->foreignKeysSelectQuery($table);
 		$sql = $this->query($sql);
-		if($sql->rowCount()) {
+		if ($sql->rowCount()) {
 			return $sql->fetch($mode);
 		}
 		return array();

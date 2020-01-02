@@ -2,15 +2,16 @@
 
 namespace Tonight\Collections;
 
-abstract class Collection implements \Iterator {
-
+abstract class Collection implements \Iterator
+{
 	public abstract function current();
 	public abstract function key();
 	public abstract function next();
 	public abstract function rewind();
 	public abstract function valid();
 
-	public function forEach(callable $func) {
+	public function forEach(callable $func)
+	{
 		while ($this->valid()) {
 			$key = $this->key();
 			$value = $this->current();
@@ -20,7 +21,8 @@ abstract class Collection implements \Iterator {
 		$this->rewind();
 	}
 
-	public function each() {
+	public function each()
+	{
 		return each($this);
 	}
 }
