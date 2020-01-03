@@ -79,14 +79,21 @@ class Table extends ArrayList
 		return implode(" AND ", $ret);
 	}
 
+	private function formatValue($value)
+	{
+		if(empty($value)) {
+			return 'NULL';
+		} else {
+			return "'".addslashes($value)."'";
+		}
+	}
+
 	public function update()
 	{
 		if (count($this->sets)) {
 			foreach ($this->sets as $item) {
 				$sql = "UPDATE ".$this->idName." SET ".implode(", ", array_map( function($key, $value) {
-					return empty($value)
-						? ''
-						: $this->db->identifier($key)."='".addslashes($value)."'";
+					return $this->db->identifier($key)."=".$this->formatValue($value);
 				}, array_keys((array)$this->get($item["key"])), (array)$this->get($item["key"]))).
 				" WHERE ".$this->pkValues($item["key"]);
 				$this->db->query($sql);
@@ -102,10 +109,10 @@ class Table extends ArrayList
 			foreach ($this->inserts as $value) {
 				$sql = "INSERT INTO ".$this->idName
 				." (".implode(", ", array_map( function($key, $value) {
-					return empty($value) ? '' : $this->db->identifier($key);
+					return $this->db->identifier($key);
 				}, array_keys($this->get($value)), $this->get($value)))
 				.") VALUES(".implode(", ", array_map( function($value) {
-					return empty($value) ? '' : "'".addslashes($value)."'";
+					return $this->formatValue($value);
 				}, $this->get($value)))
 				.")";
 				$this->db->query($sql);
