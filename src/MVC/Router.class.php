@@ -40,11 +40,11 @@ class Router
 	{
 		$url = Config::urlGetter();
 		$routes = Config::getRoutes();
-		$args = array();
-
+		
 		$url = explode('/', $url);
 
 		foreach ($routes as $route) {
+			$args = array();
 			$urlRoute = explode('/', $route[0]);
 
 			if (count($url) == count($urlRoute)) {
