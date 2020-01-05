@@ -1,12 +1,26 @@
 <?php
 
-namespace Tonight\Server;
+namespace Tonight\Tools;
 
 class Request
 {
 	public const GET = 'GET';
 	public const POST = 'POST';
-	public const CURRENT_MODE = 'CURRENT';
+
+	public static function getMode()
+	{
+		return new self(self::GET);
+	}
+
+	public static function postMode()
+	{
+		return new self(self::POST);
+	}
+
+	public static function currentMode()
+	{
+		return new self($_SERVER['REQUEST_METHOD']);
+	}
 
 	private function init($mode)
 	{
@@ -25,11 +39,8 @@ class Request
 		}
 	}
 
-	public function __construct($mode = self::CURRENT_MODE)
+	private function __construct($mode)
 	{
-		if ($mode == self::CURRENT_MODE) {
-			$mode = $_SERVER['REQUEST_METHOD'];
-		}
 		$this->init($mode);
 	}
 

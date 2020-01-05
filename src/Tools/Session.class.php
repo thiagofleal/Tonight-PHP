@@ -1,6 +1,6 @@
 <?php
 
-namespace Tonight\Server;
+namespace Tonight\Tools;
 
 class Session
 {
@@ -14,9 +14,17 @@ class Session
 		$_SESSION[$key] = $value;
 	}
 
-	public static function get($key)
+	public static function get($key = NULL)
 	{
-		return $_SESSION[$key];
+		if ($key !== NULL) {
+			return $_SESSION[$key];
+		}
+		$session = new self;
+
+		foreach ($_SESSION as $key => $value) {
+			$session->{$key} = $value;
+		}
+		return $session;
 	}
 
 	public static function unset($key)
@@ -31,7 +39,7 @@ class Session
 
 	public static function setEmpty($key, $value)
 	{
-		if (!isset($_SESSION[$key])){
+		if (!isset($_SESSION[$key])) {
 			$_SESSION[$key] = $value;
 		}
 	}
@@ -46,10 +54,19 @@ class Session
 		return isset($_SESSION['_Flash'][$key]);
 	}
 
-	public static function getFlash($key)
+	public static function getFlash($key = NULL)
 	{
-		$ret = $_SESSION['_Flash'][$key];
-		unset($_SESSION['_Flash'][$key]);
-		return $ret;
+		if ($key !== NULL) {
+			$ret = $_SESSION['_Flash'][$key];
+			unset($_SESSION['_Flash'][$key]);
+			return $ret;
+		}
+		$flash = new self;
+
+		foreach ($_SESSION['_Flash'] as $key => $value) {
+			$flash->{$key} = $value;
+		}
+		unset($_SESSION['_Flash']);
+		return $flash;
 	}
 }

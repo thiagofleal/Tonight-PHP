@@ -1,6 +1,6 @@
 <?php
 
-namespace Tonight\Server;
+namespace Tonight\Tools;
 
 class Cache
 {
