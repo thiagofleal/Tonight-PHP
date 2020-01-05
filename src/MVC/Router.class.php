@@ -2,7 +2,7 @@
 
 namespace Tonight\MVC;
 
-use Tonight\Server\Request;
+use Tonight\Tools\Request;
 
 class Router
 {
@@ -19,7 +19,7 @@ class Router
 	private static function executeRoute($route, $args)
 	{
 		$str = explode('@', $route);
-		$request = new Request();
+		$request = Request::currentMode();
 
 		if (count($str) == 2) {
 			$conName = Config::getControllersNamespace() . "\\" . $str[0];
