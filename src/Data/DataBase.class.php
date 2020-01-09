@@ -46,19 +46,25 @@ abstract class DataBase extends \PDO
 	{
 		$sql = $this->primaryKeysSelectQuery($table);
 		$sql = $this->query($sql);
+		$ret = array();
 		if ($sql->rowCount()) {
-			return $sql->fetch($mode);
+			foreach ($sql->fetchAll($mode) as $value) {
+			 	$ret[] = $value->column_name;
+			}
 		}
-		return array();
+		return $ret;
 	}
 
 	public function getForeignKeys(string $table, $mode = \PDO::FETCH_OBJ)
 	{
 		$sql = $this->foreignKeysSelectQuery($table);
 		$sql = $this->query($sql);
+		$ret = array();
 		if ($sql->rowCount()) {
-			return $sql->fetch($mode);
+			foreach ($sql->fetchAll($mode) as $value) {
+			 	$ret[] = $value->column_name;
+			}
 		}
-		return array();
+		return $ret;
 	}
 }
