@@ -2,7 +2,9 @@
 
 namespace Tonight\Data;
 
-abstract class DataBase extends \PDO
+use PDO;
+
+abstract class DataBase extends PDO
 {
 	protected $dbName;
 	protected $tableNames;
@@ -42,27 +44,27 @@ abstract class DataBase extends \PDO
 	public function dbName() { return $this->dbName; }
 	public function tableNames() { return $this->tableNames; }
 
-	public function getPrimaryKeys(string $table, $mode = \PDO::FETCH_OBJ)
+	public function getPrimaryKeys(string $table, $mode = PDO::FETCH_OBJ)
 	{
 		$sql = $this->primaryKeysSelectQuery($table);
 		$sql = $this->query($sql);
 		$ret = array();
 		if ($sql->rowCount()) {
-			foreach ($sql->fetchAll($mode) as $value) {
-			 	$ret[] = $value->column_name;
+			foreach ($sql->fetchAll(PDO::FETCH_OBJ) as $value) {
+			 	$ret[] = $value->column;
 			}
 		}
 		return $ret;
 	}
 
-	public function getForeignKeys(string $table, $mode = \PDO::FETCH_OBJ)
+	public function getForeignKeys(string $table, $mode = PDO::FETCH_OBJ)
 	{
 		$sql = $this->foreignKeysSelectQuery($table);
 		$sql = $this->query($sql);
 		$ret = array();
 		if ($sql->rowCount()) {
-			foreach ($sql->fetchAll($mode) as $value) {
-			 	$ret[] = $value->column_name;
+			foreach ($sql->fetchAll(PDO::FETCH_OBJ) as $value) {
+			 	$ret[] = $value->column;
 			}
 		}
 		return $ret;

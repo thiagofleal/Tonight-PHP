@@ -19,7 +19,7 @@ class MySQL extends DataBase
 
 	public function primaryKeysSelectQuery(string $table)
 	{
-		return "SELECT `key_column_usage`.`column_name` 
+		return "SELECT `key_column_usage`.`column_name` AS `column` 
 			FROM `information_schema`.`key_column_usage` 
 			WHERE `table_schema` = schema() 
 			AND `constraint_name` = 'PRIMARY' 
@@ -28,7 +28,7 @@ class MySQL extends DataBase
 
 	public function foreignKeysSelectQuery(string $table)
 	{
-		return "SELECT `key_column_usage`.`column_name` 
+		return "SELECT `key_column_usage`.`column_name` AS `column` 
 			FROM `information_schema`.`key_column_usage` 
 			WHERE `table_schema` = schema() 
 			AND `constraint_name` = 'FOREIGN' 
