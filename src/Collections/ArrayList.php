@@ -148,6 +148,8 @@ class ArrayList extends Collection
 				if ($on($left, $right)) {
 					if (is_array($left) && is_array($right)) {
 						$ret[] = array_merge($left, $right);
+					} elseif (is_object($left) && is_object($right)) {
+						$ret[] = (object)array_merge((array)$left, (array)$right);
 					} else {
 						$ret[] = array($left, $right);
 					}
