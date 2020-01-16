@@ -2,7 +2,8 @@
 
 namespace Tonight\Data;
 
-use \Tonight\Collections\ArrayList;
+use PDO;
+use Tonight\Collections\ArrayList;
 
 class Table extends ArrayList
 {
@@ -20,11 +21,17 @@ class Table extends ArrayList
 	{
 		$sql = "SELECT * FROM ".$this->idName;
 		$sql = $this->db->query($sql);
-		$this->setData($sql->fetchAll($this->selectMode));
+
+		if ($sql === false) {
+			$data = array());
+		} else {
+			$data = $sql->fetchAll($this->selectMode);
+		}
+		$this->setData($data);
 	}
 
 	/* Public interface */
-	public function __construct(DataBase $db, string $name, $selectMode = \PDO::FETCH_OBJ)
+	public function __construct(DataBase $db, string $name, $selectMode = PDO::FETCH_OBJ)
 	{
 		parent::__construct();
 		$this->db = $db;
