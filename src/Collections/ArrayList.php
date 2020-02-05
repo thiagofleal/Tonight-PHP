@@ -90,6 +90,18 @@ class ArrayList extends Collection
 		while ($this->removeFirst($value)) {}
 	}
 
+	public function removeArray(array $arg)
+	{
+		foreach ($arg as $value) {
+			$this->removeFirst($value);
+		}
+	}
+
+	public function removeWhere(callable $callback)
+	{
+		$this->removeArray($this->where($callback));
+	}
+
 	public function append($value)
 	{
 		$this->data[] = $value;
@@ -111,13 +123,7 @@ class ArrayList extends Collection
 
 	public function where(callable $cond)
 	{
-		$ret = array();
-		foreach ($this->data as $value) {
-			if($cond( $value )) {
-				$ret[] = $value;
-			}
-		}
-		return new self($ret);
+		return new self(array_filter($this->data, $cond));
 	}
 
 	public function order(callable $func)
@@ -133,6 +139,8 @@ class ArrayList extends Collection
 	{
 		$ret = array();
 		$default = NULL;
+		$mark = false;
+		$other_data = $other->get();
 		if ($required) {
 			$model = $other->get(0);
 			if (is_array($model)) {
@@ -144,8 +152,8 @@ class ArrayList extends Collection
 		}
 		foreach ($this->data as $left) {
 			$mark = false;
-			foreach ($other->get() as $right) {
-				if ($on($left, $right)) {
+			foreach ($other_data as $right) {
+				if ( $on($left, $right) ) {
 					if (is_array($left) && is_array($right)) {
 						$ret[] = array_merge($left, $right);
 					} elseif (is_object($left) && is_object($right)) {

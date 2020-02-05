@@ -44,29 +44,19 @@ class Session
 		}
 	}
 
-	public static function setFlash($key, $value)
-	{
-		$_SESSION['_Flash'][$key] = $value;
-	}
-
-	public static function issetFlash($key)
-	{
-		return isset($_SESSION['_Flash'][$key]);
-	}
-
 	public static function getFlash($key = NULL)
 	{
 		if ($key !== NULL) {
-			$ret = $_SESSION['_Flash'][$key];
-			unset($_SESSION['_Flash'][$key]);
+			$ret = $_SESSION[$key];
+			unset($_SESSION[$key]);
 			return $ret;
 		}
 		$flash = new self;
 
-		foreach ($_SESSION['_Flash'] as $key => $value) {
+		foreach ($_SESSION as $key => $value) {
 			$flash->{$key} = $value;
+			unset($_SESSION[$key]);
 		}
-		unset($_SESSION['_Flash']);
 		return $flash;
 	}
 }

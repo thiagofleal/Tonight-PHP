@@ -4,66 +4,74 @@ namespace Tonight\Data;
 
 use PDO;
 
-abstract class DataBase extends PDO
+class DataBase
 {
+	private $dbms;
+	private $dsn;
+	private $args;
+	private $attributes;
+
 	protected $dbName;
 	protected $tableNames;
 
-	public function __construct($dsn, ...$args)
+	public function __construct($class, $dsn, ...$args)
 	{
-		$con = '';
-		if (is_array($dsn)) {
-			$con = $dsn["driver"].":".implode(";", array_map( function($key, $value) {
-				return $key != 'driver' ? $key."=".$value : '';
-			}, array_keys($dsn), $dsn));
-			$this->dbName = $dsn["dbname"];
-		}
-		if (is_string($dsn)) {
-			$con = $dsn;
-		}
-		parent::__construct($con, ...$args);
+		$this->dbms = new $class();
+		$this->dsn = $dsn;
+		$this->args = $args;
+		$this->attributes = array();
 	}
 
-	public function start($tables)
+	public function getConnection()
 	{
-		if (is_string($tables)) {
-			$this->tableNames = array($tables);
+		$con = new PDO($this->dsn, ...$this->args);
+		$con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		$con->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
+		foreach ($this->attributes as $attribute) {
+			$con->setAttribute($attribute['key'], $attribute['value']);
 		}
-		if (is_array($tables)) {
-			$this->tableNames = $tables;
-		}
+		return $con;
+	}
+
+	public function setAttribute($key, $value)
+	{
+		$this->attributes[] = array('key' => $key, 'value' => $value);
+	}
+
+	public function load(...$tables)
+	{
+		$this->tableNames = $tables;
 		foreach ($this->tableNames as $value) {
 			$this->{$value} = new Table($this, $value);
 		}
 	}
 
-	public abstract function identifier(string $str);
-	public abstract function primaryKeysSelectQuery(string $table);
-	public abstract function foreignKeysSelectQuery(string $table);
-
+	public function getDBMS() { return $this->dbms; }
 	public function dbName() { return $this->dbName; }
 	public function tableNames() { return $this->tableNames; }
 
-	public function getPrimaryKeys(string $table, $mode = PDO::FETCH_OBJ)
+	public function getPrimaryKeys(string $table)
 	{
-		$sql = $this->primaryKeysSelectQuery($table);
-		$sql = $this->query($sql);
+		$db = $this->getConnection();
+		$sql = $this->dbms->primaryKeysSelectQuery($table);
+		$sql = $db->query($sql);
 		$ret = array();
 		if ($sql->rowCount()) {
-			foreach ($sql->fetchAll(PDO::FETCH_OBJ) as $value) {
+			foreach ($sql->fetchAll() as $value) {
 			 	$ret[] = $value->column;
 			}
 		}
 		return $ret;
 	}
 
-	public function getForeignKeys(string $table, $mode = PDO::FETCH_OBJ)
+	public function getForeignKeys(string $table)
 	{
-		$sql = $this->foreignKeysSelectQuery($table);
-		$sql = $this->query($sql);
+		$db = $this->getConnection();
+		$sql = $this->dbms->foreignKeysSelectQuery($table);
+		$sql = $db->query($sql);
 		$ret = array();
 		if ($sql->rowCount()) {
-			foreach ($sql->fetchAll(PDO::FETCH_OBJ) as $value) {
+			foreach ($sql->fetchAll() as $value) {
 			 	$ret[] = $value->column;
 			}
 		}
