@@ -8,6 +8,11 @@ class Queue extends Collection
 	private $size;
 	private $current;
 
+	public function newInstance($data)
+	{
+		return new self($data);
+	}
+
 	private function updateSize()
 	{
 		$this->size = count($this->data);

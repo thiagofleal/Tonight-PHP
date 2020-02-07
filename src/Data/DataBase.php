@@ -40,9 +40,9 @@ class DataBase
 
 	public function load(...$tables)
 	{
-		$this->tableNames = $tables;
-		foreach ($this->tableNames as $value) {
-			$this->{$value} = new Table($this, $value);
+		foreach ($tables as $table) {
+			$this->tableNames[] = $table;
+			$this->{$table} = new Table($this, $table);
 		}
 	}
 

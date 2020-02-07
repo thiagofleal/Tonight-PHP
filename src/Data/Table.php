@@ -2,6 +2,7 @@
 
 namespace Tonight\Data;
 
+use stdClass;
 use PDO;
 use Tonight\Collections\ArrayList;
 
@@ -15,6 +16,7 @@ class Table extends ArrayList
 	private $sets;
 	private $deletes;
 	private $inserts;
+	private $rowInsert;
 
 	private function updateData()
 	{
@@ -30,6 +32,13 @@ class Table extends ArrayList
 		$this->setData($data);
 	}
 
+	public function newInstance($data)
+	{
+		$new = clone $this;
+		$new->setData($data);
+		return $new;
+	}
+
 	public function __construct(DataBase $db, string $name)
 	{
 		parent::__construct();
@@ -42,16 +51,23 @@ class Table extends ArrayList
 		$this->deletes = array();
 		$this->inserts = array();
 		$this->updateData();
+		$this->rowInsert = array();
 	}
 
 	public function setValue($value)
 	{
 		if (($key = array_search($value, $this->get())) !== false) {
-			$this->sets[] = array(
-				"key" => $key,
-				"value" => $value
-			);
+			$this->sets[] = $key;
 		}
+	}
+
+	public function setValues($sets)
+	{
+		$ret = parent::setValues($sets);
+		foreach ($this as $value) {
+			$this->setValue($value);
+		}
+		return $ret;
 	}
 
 	public function remove($key)
@@ -62,26 +78,31 @@ class Table extends ArrayList
 		}
 	}
 
-	public function removeArray(array $arg)
-	{
-		foreach ($arg as $value) {
-			$this->removeFirst($value);
-		}
-	}
-
 	public function append($value)
 	{
-		$this->inserts[] = $this->size();
 		parent::append($value);
+		$this->inserts[] = $this->getLastInsertedKey();
+	}
+
+	public function getRowsInsert()
+	{
+		return $this->rowInsert;
+	}
+
+	public function pkValuesArray($key)
+	{
+		$ret = array();
+		$dbms = $this->db->getDBMS();
+		foreach ($this->pk as $value) {
+			$ret[] = $dbms->identifier($value)."='".$this->get($key)->{$value}."'";
+		}
+		return $ret;
 	}
 
 	public function pkValues($key)
 	{
-		$ret = array();
-		foreach ($this->pk as $value) {
-			$ret[] = $this->db->identifier($value)."='".$this->get($key)->$value."'";
-		}
-		return implode(" AND ", $ret);
+		$array = $this->pkValuesArray($key);
+		return implode(" AND ", $array);
 	}
 
 	private function formatValue($value)
@@ -93,41 +114,58 @@ class Table extends ArrayList
 		}
 	}
 
-	public function update()
+	public function commit()
 	{
+		$dbms = $this->db->getDBMS();
+		$insert = false;
+		
+		$count_deletes = count($this->deletes);
+		
 		if (count($this->sets)) {
 			foreach ($this->sets as $item) {
-				$db = $this->db->getConnection();
-				$sql = "UPDATE ".$this->idName." SET ".implode(", ", array_map( function($key, $value) {
-					return $this->db->identifier($key)."=".$this->formatValue($value);
-				}, array_keys((array)$this->get($item["key"])), (array)$this->get($item["key"]))).
-				" WHERE ".$this->pkValues($item["key"]);
-				$db->query($sql);
+				$pdo = $this->db->getConnection();
+				$sql = "UPDATE ".$this->idName." SET ".implode(", ", array_map( function($key, $value) use($dbms) {
+					return $dbms->identifier($key)."=".$this->formatValue($value);
+				}, array_keys((array)$this->get($item)), (array)$this->get($item))).
+				" WHERE ".$this->pkValues($item);
+				$pdo->query($sql);
 			}
-			$this->sets = array();
 		}
-		if (count($this->deletes)) {
-			$db = $this->db->getConnection();
+		if ($count_deletes) {
+			$pdo = $this->db->getConnection();
 			$sql = "DELETE FROM ".$this->idName." WHERE ".implode(" OR ", $this->deletes);
-			$db->query($sql);
-			$this->deletes = array();
+			$pdo->query($sql);
 		}
 		if (count($this->inserts)) {
-			foreach ($this->inserts as $value) {
-				$db = $this->db->getConnection();
+			foreach ($this->inserts as $key) {
+				$pdo = $this->db->getConnection();
 				$sql = "INSERT INTO ".$this->idName
-				." (".implode(", ", array_map( function($key, $value) {
-					return $this->db->identifier($key);
-				}, array_keys($this->get($value)), $this->get($value)))
+				." (".implode(", ", array_map( function($key, $value) use($dbms) {
+					return $dbms->identifier($key);
+				}, array_keys((array)$this->get($key)), (array)$this->get($key)))
 				.") VALUES(".implode(", ", array_map( function($value) {
 					return $this->formatValue($value);
-				}, $this->get($value)))
+				}, (array)$this->get($key)))
 				.")";
-				$db->query($sql);
+				$pdo->query($sql);
 			}
-			$this->inserts = array();
+			$insert = true;
 		}
+		
 		$this->updateData();
+
+		if ($insert) {
+			$data = array();
+			foreach ($this->inserts as $key) {
+				$data[] = $this->get($key - $count_deletes);
+			}
+			$this->rowInsert = $data;
+		}
+		
+		$this->sets = array();
+		$this->deletes = array();
+		$this->inserts = array();
+		
 		return $this;
 	}
 }

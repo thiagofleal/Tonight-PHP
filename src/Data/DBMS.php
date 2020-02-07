@@ -18,9 +18,9 @@ abstract class DBMS
 	{
 		$column = $this->identifier('column');
 
-		$field = $this->getPrimaryKeyField($column);
-		$from = $this->getPrimaryKeyFrom($column);
-		$where = $this->getPrimaryKeyWhere($column);
+		$field = $this->getPrimaryKeyField($table);
+		$from = $this->getPrimaryKeyFrom($table);
+		$where = $this->getPrimaryKeyWhere($table);
 
 		return "SELECT {$field} AS {$column} FROM {$from} WHERE {$where}";
 	}
@@ -29,9 +29,9 @@ abstract class DBMS
 	{
 		$column = $this->identifier('column');
 		
-		$field = $this->getForeignKeyField($column);
-		$from = $this->getForeignKeyFrom($column);
-		$where = $this->getForeignKeyWhere($column);
+		$field = $this->getForeignKeyField($table);
+		$from = $this->getForeignKeyFrom($table);
+		$where = $this->getForeignKeyWhere($table);
 
 		return "SELECT {$field} AS {$column} FROM {$from} WHERE {$where}";
 	}

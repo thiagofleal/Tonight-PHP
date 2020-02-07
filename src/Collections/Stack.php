@@ -7,6 +7,11 @@ class Stack extends Collection
 	private $data;
 	private $size;
 
+	public function newInstance($data)
+	{
+		return new self($data);
+	}
+
 	private function updateSize()
 	{
 		$this->size = count($this->data);

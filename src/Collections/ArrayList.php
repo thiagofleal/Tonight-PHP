@@ -7,6 +7,12 @@ class ArrayList extends Collection
 	private $data;
 	private $size;
 	private $current;
+	private $lastInsertedKey;
+
+	public function newInstance($data)
+	{
+		return new self($data);
+	}
 
 	private function updateSize()
 	{
@@ -50,15 +56,49 @@ class ArrayList extends Collection
 		$this->updateSize();
 	}
 
-	public function get($key = -1)
+	public function get($key = false)
 	{
-		return $key !== -1 ? $this->data[$key] : $this->data;
+		return ($key === false ? $this->data : $this->data[$key]);
+	}
+
+	public function first()
+	{
+		return $this->data[array_key_first($this->data)];
+	}
+
+	public function last()
+	{
+		return $this->data[array_key_last($this->data)];
+	}
+
+	public function getLastInsertedKey()
+	{
+		return $this->lastInsertedKey;
 	}
 
 	public function set($key, $value)
 	{
 		$this->data[$key] = $value;
 		$this->updateSize();
+	}
+
+	public function setValues($sets)
+	{
+		foreach ($this->data as &$element) {
+			if (is_array($sets)) {
+				foreach ($sets as $key => $value) {
+					if (is_array($element)) {
+						$element[$key] = $value;
+					}
+					if (is_object($element)) {
+						$element->{$key} = $value;
+					}
+				}
+			} else {
+				$element = $sets;
+			}
+		}
+		return $this;
 	}
 
 	public function isset($key)
@@ -99,15 +139,18 @@ class ArrayList extends Collection
 
 	public function removeWhere(callable $callback)
 	{
-		$this->removeArray($this->where($callback));
+		$where = $this->where($callback);
+		$array = $where->get();
+		$this->removeArray($array);
 	}
 
 	public function append($value)
 	{
 		$this->data[] = $value;
+		$this->lastInsertedKey = array_key_last($this->data);
 	}
 
-	public function size()
+	public function count()
 	{
 		return $this->size;
 	}
@@ -118,12 +161,12 @@ class ArrayList extends Collection
 		foreach ($this->data as $value) {
 			$ret[] = $sel( $value );
 		}
-		return new self($ret);
+		return $this->newInstance($ret);
 	}
 
 	public function where(callable $cond)
 	{
-		return new self(array_filter($this->data, $cond));
+		return $this->newInstance(array_filter($this->data, $cond));
 	}
 
 	public function order(callable $func)
@@ -132,7 +175,7 @@ class ArrayList extends Collection
 			return $value;
 		}, $this->data);
 		usort($ret, $func);
-		return new self($ret);
+		return $this->newInstance($ret);
 	}
 
 	public function join(ArrayList $other, callable $on, $required = false)
@@ -173,6 +216,6 @@ class ArrayList extends Collection
 				}
 			}
 		}
-		return new self($ret);
+		return $this->newInstance($ret);
 	}
 }
