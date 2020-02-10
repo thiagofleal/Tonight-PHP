@@ -86,7 +86,7 @@ class Table extends ArrayList
 
 	public function getRowsInsert()
 	{
-		return $this->rowInsert;
+		return new ArrayList($this->rowInsert);
 	}
 
 	public function pkValuesArray($key)
