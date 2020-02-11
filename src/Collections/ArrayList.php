@@ -63,12 +63,17 @@ class ArrayList extends Collection
 
 	public function first()
 	{
-		return $this->data[array_key_first($this->data)];
+		foreach ($this->data as $value) {
+			return $value;
+		}
 	}
 
 	public function last()
 	{
-		return $this->data[array_key_last($this->data)];
+		foreach ($this->data as $value) {
+			$last = $value;
+		}
+		return $last;
 	}
 
 	public function getLastInsertedKey()
