@@ -76,6 +76,21 @@ class ArrayList extends Collection
 		return $last;
 	}
 
+	public function firstKey()
+	{
+		foreach ($this->data as $key => $value) {
+			return $key;
+		}
+	}
+
+	public function lastKey()
+	{
+		foreach ($this->data as $key => $value) {
+			$last = $key;
+		}
+		return $last;
+	}
+
 	public function getLastInsertedKey()
 	{
 		return $this->lastInsertedKey;
@@ -152,7 +167,7 @@ class ArrayList extends Collection
 	public function append($value)
 	{
 		$this->data[] = $value;
-		$this->lastInsertedKey = array_key_last($this->data);
+		$this->lastInsertedKey = $this->lastKey();
 	}
 
 	public function count()
