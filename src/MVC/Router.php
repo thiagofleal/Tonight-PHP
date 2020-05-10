@@ -58,7 +58,7 @@ class Router
 				}
 
 				if (implode('/', $url) == implode('/', $urlRoute)) {
-					return self::executeRoute($route[1], $args);
+					return self::executeRoute(Config::getRoutesFolder().$route[1], $args);
 				}
 			}
 		}

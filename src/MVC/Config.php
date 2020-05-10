@@ -11,6 +11,7 @@ class Config
 	private static $viewsExtension = 'php';
 	private static $templatesPath = '';
 	private static $controllersNamespace = '';
+	private static $baseRoutesFolder = '';
 	private static $routes = array();
 	private static $notFoundRoute = '';
 
@@ -20,6 +21,7 @@ class Config
 	public static function getViewsPath() { return self::$viewsPath; }
 	public static function getTemplatesPath() { return self::$templatesPath; }
 	public static function getControllersNamespace() { return self::$controllersNamespace; }
+	public static function getRoutesFolder() { return self::$baseRoutesFolder; }
 	public static function getRoutes() { return self::$routes; }
 	public static function getRoute($key) { return self::$routes[$key]; }
 	public static function getNotFoundRoute() { return self::$notFoundRoute; }
@@ -62,6 +64,11 @@ class Config
 	public static function setControllersNamespace(string $controllersNamespace)
 	{
 		self::$controllersNamespace = $controllersNamespace;
+	}
+
+	public static function setRoutesFolder(string $folder)
+	{
+		self::$baseRoutesFolder = $folder;
 	}
 
 	public static function setRoutes(array $routes)
