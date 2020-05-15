@@ -45,7 +45,7 @@ class Router
 
 		foreach ($routes as $route) {
 			$args = array();
-			$urlRoute = explode('/', $route[0]);
+			$urlRoute = explode('/', Config::getRoutesFolder().$route[0]);
 
 			if (count($url) == count($urlRoute)) {
 				for ($i = 0; $i < count($url); $i++) { 
@@ -58,7 +58,7 @@ class Router
 				}
 
 				if (implode('/', $url) == implode('/', $urlRoute)) {
-					return self::executeRoute(Config::getRoutesFolder().$route[1], $args);
+					return self::executeRoute($route[1], $args);
 				}
 			}
 		}
