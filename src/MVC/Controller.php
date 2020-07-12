@@ -17,6 +17,11 @@ class Controller
 		$this->variables[$key] = $value;
 	}
 
+	protected function getVariable($key)
+	{
+		return $this->variables[$key];
+	}
+
 	protected function setView(string $view)
 	{
 		$this->view = Config::getViewsPath() . '/' . $view . '.' . Config::getViewsExtension();
@@ -33,11 +38,11 @@ class Controller
 		return Config::getTemplatesPath() . '/' . $template . '.' . Config::getViewsExtension();
 	}
 
-	protected function render($page, $template = false)
+	protected function render($page, $template = NULL)
 	{
 		$this->setView($page);
+		extract($this->variables);
 		if ($template) {
-			extract($this->variables);
 			return require $this->getTemplateFrom($template);
 		}
 		return $this->content();

@@ -8,7 +8,7 @@ class Router
 {
 	public static function getLink(...$args)
 	{
-		return Config::getBaseUrl() . '/' . implode("/", $args);
+		return Config::getBaseUrl() . Config::getRoutesFolder() . implode("/", $args);
 	}
 
 	public static function redirect(...$args)
