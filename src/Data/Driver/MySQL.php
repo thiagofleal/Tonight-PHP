@@ -6,7 +6,7 @@ use Tonight\Data\DBMS;
 
 class MySQL extends DBMS
 {
-	public function identifier(string $str)
+	public function identifier($str)
 	{
 		return "`$str`";
 	}

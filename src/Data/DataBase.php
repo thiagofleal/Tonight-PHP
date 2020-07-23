@@ -50,21 +50,19 @@ class DataBase
 	public function dbName() { return $this->dbName; }
 	public function tableNames() { return $this->tableNames; }
 
-	public function getPrimaryKeys(string $table)
+	public function getPrimaryKeys($table)
 	{
 		$db = $this->getConnection();
 		$sql = $this->dbms->primaryKeysSelectQuery($table);
 		$sql = $db->query($sql);
 		$ret = array();
-		if ($sql->rowCount()) {
-			foreach ($sql->fetchAll() as $value) {
-			 	$ret[] = $value->column;
-			}
+		foreach ($sql->fetchAll() as $value) {
+		 	$ret[] = $value->column;
 		}
 		return $ret;
 	}
 
-	public function getForeignKeys(string $table)
+	public function getForeignKeys($table)
 	{
 		$db = $this->getConnection();
 		$sql = $this->dbms->foreignKeysSelectQuery($table);

@@ -19,10 +19,13 @@ class Controller
 
 	protected function getVariable($key)
 	{
-		return $this->variables[$key];
+		if (isset($this->variables[$key])) {
+			return $this->variables[$key];
+		}
+		return false;
 	}
 
-	protected function setView(string $view)
+	protected function setView($view)
 	{
 		$this->view = Config::getViewsPath() . '/' . $view . '.' . Config::getViewsExtension();
 	}

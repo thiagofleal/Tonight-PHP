@@ -4,7 +4,7 @@ namespace Tonight\Data;
 
 abstract class DBMS
 {
-	public abstract function identifier(string $str);
+	public abstract function identifier($str);
 
 	public abstract function getPrimaryKeyField($table);
 	public abstract function getPrimaryKeyFrom($table);

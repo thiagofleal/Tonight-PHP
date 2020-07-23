@@ -8,12 +8,12 @@ class Cache
 	private $data;
 	private $type = 0;
 
-	private function __construct(string $filename)
+	private function __construct($filename)
 	{
 		$this->filename = $filename;
 	}
 
-	public static function file(string $filename)
+	public static function file($filename)
 	{
 		static $files;
 
@@ -43,7 +43,7 @@ class Cache
 		file_put_contents($this->filename, $contents);
 	}
 
-	public function set(string $id, $value)
+	public function set($id, $value)
 	{
 		$this->data[$id] = $value;
 		if ($this->type != 1) {
@@ -53,7 +53,7 @@ class Cache
 		$this->putContents(json_encode($this->data));
 	}
 
-	public function get(string $id)
+	public function get($id)
 	{
 		$value = NULL;
 		if (file_exists($this->filename) && $this->type != 2) {
@@ -66,7 +66,7 @@ class Cache
 		return $value;
 	}
 
-	public function requirePage(string $page, $time = 0)
+	public function requirePage($page, $time = 0)
 	{
 		if (!file_exists($this->filename) || $this->type == 1 || ($time && $time < time() - $this->time())) {
 			$this->type = 2;

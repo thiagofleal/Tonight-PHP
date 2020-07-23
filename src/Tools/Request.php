@@ -7,12 +7,12 @@ class Request
 	public const GET = 'GET';
 	public const POST = 'POST';
 
-	public static function getMode()
+	public static function modeGet()
 	{
 		return new self(self::GET);
 	}
 
-	public static function postMode()
+	public static function modePost()
 	{
 		return new self(self::POST);
 	}

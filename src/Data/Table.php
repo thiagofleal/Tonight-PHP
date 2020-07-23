@@ -39,7 +39,7 @@ class Table extends ArrayList
 		return $new;
 	}
 
-	public function __construct(DataBase $db, string $name)
+	public function __construct(DataBase $db, $name)
 	{
 		parent::__construct();
 		$this->db = $db;

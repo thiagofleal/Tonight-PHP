@@ -31,7 +31,7 @@ class Config
 		return $func();
 	}
 
-	public static function setBaseUrl(string $baseUrl)
+	public static function setBaseUrl($baseUrl)
 	{
 		self::$baseUrl = $baseUrl;
 	}
@@ -41,32 +41,32 @@ class Config
 		self::$urlGetter = $urlGetter;
 	}
 
-	public static function setModelsNamespace(string $modelsNamespace)
+	public static function setModelsNamespace($modelsNamespace)
 	{
 		self::$modelsNamespace = $modelsNamespace;
 	}
 
-	public static function setViewsExtension(string $viewsExtension)
+	public static function setViewsExtension($viewsExtension)
 	{
 		self::$viewsExtension = $viewsExtension;
 	}
 
-	public static function setViewsPath(string $viewsPath)
+	public static function setViewsPath($viewsPath)
 	{
 		self::$viewsPath = $viewsPath;
 	}
 
-	public static function setTemplatesPath(string $templatesPath)
+	public static function setTemplatesPath($templatesPath)
 	{
 		self::$templatesPath = $templatesPath;
 	}
 
-	public static function setControllersNamespace(string $controllersNamespace)
+	public static function setControllersNamespace($controllersNamespace)
 	{
 		self::$controllersNamespace = $controllersNamespace;
 	}
 
-	public static function setRoutesFolder(string $folder)
+	public static function setRoutesFolder($folder)
 	{
 		self::$baseRoutesFolder = $folder;
 	}
@@ -76,12 +76,12 @@ class Config
 		self::$routes = $routes;
 	}
 
-	public static function setNotFoundRoute(string $notFoundRoute)
+	public static function setNotFoundRoute($notFoundRoute)
 	{
 		self::$notFoundRoute = $notFoundRoute;
 	}
 
-	public static function addRoute(string $url, string $respond)
+	public static function addRoute($url, $respond)
 	{
 		self::$routes[] = array($url, $respond);
 	}
