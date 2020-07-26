@@ -11,10 +11,18 @@ class Request
 	private $files;
 	private $current;
 
-	public function __construct($props = ['get' => $_GET, 'post' => $_POST, 'files' => $_FILES])
+	public function __construct($props = false)
 	{
+		if ($props === false) {
+			$props = [
+				'get' => $_GET,
+				'post' => $_POST,
+				'files' => $_FILES
+			];
+		}
 		$current = strtolower($_SERVER['REQUEST_METHOD']);
 		foreach ($props as $prop => $src) {
+			$this->{$prop} = new stdclass;
 			foreach ($src as $key => $value) {
 				$this->{$prop}->{$key} = $value;
 			}
