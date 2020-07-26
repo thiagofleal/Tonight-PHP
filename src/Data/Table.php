@@ -54,6 +54,16 @@ class Table extends ArrayList
 		$this->rowInsert = array();
 	}
 
+	public function getPrimaryKeys()
+	{
+		return $this->pk;
+	}
+
+	public function getForeignKeys()
+	{
+		return $this->fk;
+	}
+
 	public function setValue($value)
 	{
 		if (($key = array_search($value, $this->get())) !== false) {
@@ -122,14 +132,16 @@ class Table extends ArrayList
 		$count_deletes = count($this->deletes);
 		
 		if (count($this->sets)) {
+			$pdo = $this->db->getConnection();
+			$sql = '';
 			foreach ($this->sets as $item) {
-				$pdo = $this->db->getConnection();
-				$sql = "UPDATE ".$this->idName." SET ".implode(", ", array_map( function($key, $value) use($dbms) {
+				$sql .= "UPDATE ".$this->idName." SET ".implode(", ", array_map( function($key, $value) use($dbms) {
 					return $dbms->identifier($key)."=".$this->formatValue($value);
 				}, array_keys((array)$this->get($item)), (array)$this->get($item))).
-				" WHERE ".$this->pkValues($item);
-				$pdo->query($sql);
+				" WHERE ".$this->pkValues($item).";";
 			}
+			$sql = substr($sql, 0, -1);
+			$pdo->exec($sql);
 		}
 		if ($count_deletes) {
 			$pdo = $this->db->getConnection();
@@ -137,18 +149,19 @@ class Table extends ArrayList
 			$pdo->query($sql);
 		}
 		if (count($this->inserts)) {
+			$pdo = $this->db->getConnection();
+			$sql = '';
 			foreach ($this->inserts as $key) {
-				$pdo = $this->db->getConnection();
-				$sql = "INSERT INTO ".$this->idName
-				." (".implode(", ", array_map( function($key, $value) use($dbms) {
+				$sql .= "INSERT INTO ".$this->idName
+				." (".implode(", ", array_map( function($key) use($dbms) {
 					return $dbms->identifier($key);
-				}, array_keys((array)$this->get($key)), (array)$this->get($key)))
-				.") VALUES(".implode(", ", array_map( function($value) {
+				}, array_keys((array)$this->get($key)))).") VALUES";
+				$sql .= "(".implode(", ", array_map( function($value) {
 					return $this->formatValue($value);
-				}, (array)$this->get($key)))
-				.")";
-				$pdo->query($sql);
+				}, (array)$this->get($key))).");";
 			}
+			$sql = substr($sql, 0, -1);
+			$rows = $pdo->exec($sql);
 			$insert = true;
 		}
 		
@@ -159,7 +172,7 @@ class Table extends ArrayList
 			foreach ($this->inserts as $key) {
 				$data[] = $this->get($key - $count_deletes);
 			}
-			$this->rowInsert = $data;
+			$this->rowInsert = new ArrayList($data);
 		}
 		
 		$this->sets = array();

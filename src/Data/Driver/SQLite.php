@@ -28,12 +28,12 @@ class SQLite extends DBMS
 
 	public function getForeignKeyField($table)
 	{
-		return "\"name\"";
+		return "\"from\"";
 	}
 
 	public function getForeignKeyFrom($table)
 	{
-		return "pragma_table_info('$table')";
+		return "pragma_foreign_key_list('$table')";
 	}
 
 	public function getForeignKeyWhere($table)

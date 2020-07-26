@@ -2,6 +2,7 @@
 
 namespace Tonight\MVC;
 
+use stdclass;
 use Tonight\Tools\Request;
 
 class Router
@@ -19,18 +20,13 @@ class Router
 	private static function executeRoute($route, $args)
 	{
 		$str = explode('@', $route);
-		$request = Request::currentMode();
+		$request = new Request();
 
 		if (count($str) == 2) {
 			$conName = Config::getControllersNamespace() . "\\" . $str[0];
 			$actionName = $str[1];
 			$controller = new $conName();
-			if (count($args)) {
-				$controller->$actionName((object)$args, $request);
-			}
-			else {
-				$controller->$actionName($request);
-			}
+			$controller->$actionName($request, $args);
 			return true;
 		}
 		return false;
@@ -44,15 +40,16 @@ class Router
 		$url = explode('/', $url);
 
 		foreach ($routes as $route) {
-			$args = array();
+			$args = new stdclass;
 			$urlRoute = explode('/', Config::getRoutesFolder().$route[0]);
 
 			if (count($url) == count($urlRoute)) {
-				for ($i = 0; $i < count($url); $i++) { 
+				for ($i = 0; $i < count($url); $i++) {
+					$urlRoute[$i] = trim($urlRoute[$i]);
 					if (strpos($urlRoute[$i], '{') === 0) {
 						$urlRoute[$i] = str_replace('{', '', $urlRoute[$i]);
 						$urlRoute[$i] = str_replace('}', '', $urlRoute[$i]);
-						$args[$urlRoute[$i]] = $url[$i];
+						$args->{$urlRoute[$i]} = $url[$i];
 						$urlRoute[$i] = $url[$i];
 					}
 				}
@@ -63,6 +60,6 @@ class Router
 			}
 		}
 
-		return self::executeRoute(Config::getNotFoundRoute(), $args);
+		return self::executeRoute(Config::getNotFoundRoute(), new stdclass);
 	}
 }

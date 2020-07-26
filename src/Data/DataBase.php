@@ -56,8 +56,10 @@ class DataBase
 		$sql = $this->dbms->primaryKeysSelectQuery($table);
 		$sql = $db->query($sql);
 		$ret = array();
-		foreach ($sql->fetchAll() as $value) {
-		 	$ret[] = $value->column;
+		if ($sql !== false) {
+			foreach ($sql->fetchAll() as $value) {
+			 	$ret[] = $value->column;
+			}
 		}
 		return $ret;
 	}
@@ -68,7 +70,7 @@ class DataBase
 		$sql = $this->dbms->foreignKeysSelectQuery($table);
 		$sql = $db->query($sql);
 		$ret = array();
-		if ($sql->rowCount()) {
+		if ($sql !== false) {
 			foreach ($sql->fetchAll() as $value) {
 			 	$ret[] = $value->column;
 			}
