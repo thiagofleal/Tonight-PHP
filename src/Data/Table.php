@@ -117,7 +117,7 @@ class Table extends ArrayList
 
 	private function formatValue($value)
 	{
-		if(empty($value)) {
+		if((is_string($value) && strlen($value) == 0) || (!is_string($value) && empty($value))) {
 			return 'NULL';
 		} else {
 			return "'".addslashes($value)."'";
