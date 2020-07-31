@@ -128,40 +128,40 @@ class Table extends ArrayList
 	{
 		$dbms = $this->db->getDBMS();
 		$insert = false;
-		
 		$count_deletes = count($this->deletes);
+		$ret = 0;
 		
 		if (count($this->sets)) {
 			$pdo = $this->db->getConnection();
 			$sql = '';
 			foreach ($this->sets as $item) {
-				$sql .= "UPDATE ".$this->idName." SET ".implode(", ", array_map( function($key, $value) use($dbms) {
+				$sql .= "UPDATE ".$this->idName." SET ".implode(",", array_map( function($key, $value) use($dbms) {
 					return $dbms->identifier($key)."=".$this->formatValue($value);
 				}, array_keys((array)$this->get($item)), (array)$this->get($item))).
 				" WHERE ".$this->pkValues($item).";";
 			}
 			$sql = substr($sql, 0, -1);
-			$pdo->exec($sql);
+			$ret += $pdo->exec($sql);
 		}
 		if ($count_deletes) {
 			$pdo = $this->db->getConnection();
 			$sql = "DELETE FROM ".$this->idName." WHERE ".implode(" OR ", $this->deletes);
-			$pdo->query($sql);
+			$ret += $pdo->exec($sql);
 		}
 		if (count($this->inserts)) {
 			$pdo = $this->db->getConnection();
 			$sql = '';
 			foreach ($this->inserts as $key) {
 				$sql .= "INSERT INTO ".$this->idName
-				." (".implode(", ", array_map( function($key) use($dbms) {
+				."(".implode(",", array_map( function($key) use($dbms) {
 					return $dbms->identifier($key);
-				}, array_keys((array)$this->get($key)))).") VALUES";
-				$sql .= "(".implode(", ", array_map( function($value) {
+				}, array_keys((array)$this->get($key)))).")VALUES";
+				$sql .= "(".implode(",", array_map( function($value) {
 					return $this->formatValue($value);
 				}, (array)$this->get($key))).");";
 			}
 			$sql = substr($sql, 0, -1);
-			$rows = $pdo->exec($sql);
+			$ret += $pdo->exec($sql);
 			$insert = true;
 		}
 		
@@ -179,6 +179,6 @@ class Table extends ArrayList
 		$this->deletes = array();
 		$this->inserts = array();
 		
-		return $this;
+		return $ret;
 	}
 }
