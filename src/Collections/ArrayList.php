@@ -66,10 +66,12 @@ class ArrayList extends Collection
 		foreach ($this->data as $value) {
 			return $value;
 		}
+		return NULL;
 	}
 
 	public function last()
 	{
+		$last = NULL;
 		foreach ($this->data as $value) {
 			$last = $value;
 		}
@@ -81,10 +83,12 @@ class ArrayList extends Collection
 		foreach ($this->data as $key => $value) {
 			return $key;
 		}
+		return NULL;
 	}
 
 	public function lastKey()
 	{
+		$last = NULL;
 		foreach ($this->data as $key => $value) {
 			$last = $key;
 		}
