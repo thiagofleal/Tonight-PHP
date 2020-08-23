@@ -181,11 +181,7 @@ class ArrayList extends Collection
 
 	public function select(callable $sel)
 	{
-		$ret = array();
-		foreach ($this->data as $value) {
-			$ret[] = $sel( $value );
-		}
-		return $this->newInstance($ret);
+		return $this->newInstance(array_map($sel, $this->data));
 	}
 
 	public function where(callable $cond)
