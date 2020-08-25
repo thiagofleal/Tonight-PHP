@@ -172,7 +172,7 @@ class Table extends ArrayList
 			foreach ($this->inserts as $key) {
 				$data[] = $this->get($key - $count_deletes);
 			}
-			$this->rowInsert = new ArrayList($data);
+			$this->rowInsert = $data;
 		}
 		
 		$this->sets = array();
