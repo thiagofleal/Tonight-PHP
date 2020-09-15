@@ -172,6 +172,7 @@ class ArrayList extends Collection
 	{
 		$this->data[] = $value;
 		$this->lastInsertedKey = $this->lastKey();
+		$this->updateSize();
 	}
 
 	public function count()
@@ -237,5 +238,31 @@ class ArrayList extends Collection
 			}
 		}
 		return $this->newInstance($ret);
+	}
+
+	public function interval($begin, $length=0)
+	{
+		$array = array();
+		$current_end = $this->count() - 1;
+
+		if ($begin < 0) {
+			$begin += $current_end;
+		}
+
+		if ($length <= 0) {
+			$length = $current_end + $length - $begin;
+		}
+
+		$end = $begin + $length;
+
+		if ($end >= $current_end) {
+			$end = $current_end + 1;
+		}
+
+		for($i = $begin; $i < $end; $i++) {
+			$array[] = $this->data[$i];
+		}
+
+		return $this->newInstance($array);
 	}
 }
