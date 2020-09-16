@@ -255,7 +255,7 @@ class ArrayList extends Collection
 
 		$end = $begin + $length;
 
-		if ($end >= $current_end) {
+		if ($end > $current_end) {
 			$end = $current_end + 1;
 		}
 
