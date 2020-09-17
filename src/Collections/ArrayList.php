@@ -187,7 +187,7 @@ class ArrayList extends Collection
 
 	public function where(callable $cond)
 	{
-		return $this->newInstance(array_filter($this->data, $cond));
+		return $this->newInstance(array_values(array_filter($this->data, $cond)));
 	}
 
 	public function order(callable $func)
