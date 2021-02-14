@@ -14,6 +14,7 @@ class Config
 	private static $baseRoutesFolder = '';
 	private static $routes = array();
 	private static $notFoundRoute = '';
+	private static $inputProperties = false;
 
 	public static function getBaseUrl() { return self::$baseUrl; }
 	public static function getModelsNamespace() { return self::$modelsNamespace; }
@@ -25,6 +26,7 @@ class Config
 	public static function getRoutes() { return self::$routes; }
 	public static function getRoute($key) { return self::$routes[$key]; }
 	public static function getNotFoundRoute() { return self::$notFoundRoute; }
+	public static function getInputProperties() { return self::$inputProperties; }
 
 	public static function urlGetter() {
 		$func = self::$urlGetter;
@@ -79,6 +81,11 @@ class Config
 	public static function setNotFoundRoute($notFoundRoute)
 	{
 		self::$notFoundRoute = $notFoundRoute;
+	}
+
+	public static function setInputProperties($inputProperties)
+	{
+		self::$inputProperties = $inputProperties;
 	}
 
 	public static function addRoute($url, $respond)

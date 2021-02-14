@@ -6,27 +6,32 @@ use stdclass;
 
 class Request
 {
+	private $method;
 	private $get;
 	private $post;
 	private $files;
 	private $current;
+	private $put;
+	private $delete;
+	private $head;
+	private $options;
 
 	public function __construct($props = false)
 	{
 		if ($props === false) {
 			$props = [
-				'get' => $_GET,
-				'post' => $_POST,
-				'files' => $_FILES
+				'get' => function() { return $_GET; },
+				'post' => function() { return $_POST; },
+				'files' => function() { return $_FILES; }
 			];
 		}
-		$current = strtolower($_SERVER['REQUEST_METHOD']);
+		$this->method = strtolower($_SERVER['REQUEST_METHOD']);
 		foreach ($props as $prop => $src) {
 			$this->{$prop} = new stdclass;
-			foreach ($src as $key => $value) {
+			foreach ($src() as $key => $value) {
 				$this->{$prop}->{$key} = $value;
 			}
-			if ($current == $prop) {
+			if ($this->method == $prop) {
 				$this->current = $this->{$prop};
 			}
 		}
@@ -83,5 +88,30 @@ class Request
 	public function current($keys = NULL, $default = NULL)
 	{
 		return self::values($this->current, $keys, $default);
+	}
+
+	public function put($keys = NULL, $default = NULL)
+	{
+		return self::values($this->put, $keys, $default);
+	}
+
+	public function delete($keys = NULL, $default = NULL)
+	{
+		return self::values($this->delete, $keys, $default);
+	}
+
+	public function head($keys = NULL, $default = NULL)
+	{
+		return self::values($this->head, $keys, $default);
+	}
+
+	public function options($keys = NULL, $default = NULL)
+	{
+		return self::values($this->options, $keys, $default);
+	}
+
+	public function getMethod()
+	{
+		return $this->method;
 	}
 }

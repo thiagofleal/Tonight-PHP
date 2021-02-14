@@ -20,7 +20,7 @@ class Router
 	private static function executeRoute($route, $args)
 	{
 		$str = explode('@', $route);
-		$request = new Request();
+		$request = new Request(Config::getInputProperties());
 
 		if (count($str) == 2) {
 			$conName = Config::getControllersNamespace() . "\\" . $str[0];

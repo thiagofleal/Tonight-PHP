@@ -50,4 +50,12 @@ class Controller
 		}
 		return $this->content();
 	}
+
+	protected function printJson(bool $content = true)
+	{
+		if ($content) {
+			header("Content-Type: application/json");
+		}
+		return json_encode($this->variables);
+	}
 }
