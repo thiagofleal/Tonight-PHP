@@ -16,6 +16,11 @@ class Request
 	private $head;
 	private $options;
 
+	public static function allowMethods(string $methods = '*')
+	{
+		header("Access-Control-Allow-Methods:".$methods);
+	}
+
 	public function __construct($props = false)
 	{
 		if ($props === false) {
@@ -28,7 +33,11 @@ class Request
 		$this->method = strtolower($_SERVER['REQUEST_METHOD']);
 		foreach ($props as $prop => $src) {
 			$this->{$prop} = new stdclass;
-			foreach ($src() as $key => $value) {
+			$data = $src();
+			if (empty($data)) {
+				$data = [];
+			}
+			foreach ($data as $key => $value) {
 				$this->{$prop}->{$key} = $value;
 			}
 			if ($this->method == $prop) {
@@ -112,6 +121,48 @@ class Request
 
 	public function getMethod()
 	{
-		return $this->method;
+		return strtoupper($this->method);
+	}
+
+	public function onGet(callable $callback)
+	{
+		if ($this->getMethod() === 'GET') {
+			$callback($this->get);
+		}
+	}
+
+	public function onPost(callable $callback)
+	{
+		if ($this->getMethod() === 'POST') {
+			$callback($this->post);
+		}
+	}
+
+	public function onPut(callable $callback)
+	{
+		if ($this->getMethod() === 'PUT') {
+			$callback($this->put);
+		}
+	}
+
+	public function onDelete(callable $callback)
+	{
+		if ($this->getMethod() === 'DELETE') {
+			$callback($this->delete);
+		}
+	}
+
+	public function onHead(callable $callback)
+	{
+		if ($this->getMethod() === 'HEAD') {
+			$callback($this->head);
+		}
+	}
+
+	public function onOptions(callable $callback)
+	{
+		if ($this->getMethod() === 'OPTIONS') {
+			$callback($this->options);
+		}
 	}
 }
