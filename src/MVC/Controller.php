@@ -2,6 +2,8 @@
 
 namespace Tonight\MVC;
 
+use json_encode;
+
 class Controller
 {
 	private $view;
@@ -19,12 +21,12 @@ class Controller
 
 	protected function unsetVariable($key)
 	{
-		\unset($this->variables[$key]);
+		unset($this->variables[$key]);
 	}
 
 	protected function getVariable($key)
 	{
-		if (\isset($this->variables[$key])) {
+		if (isset($this->variables[$key])) {
 			return $this->variables[$key];
 		}
 		return false;
@@ -37,7 +39,7 @@ class Controller
 
 	protected function content()
 	{
-		\extract($this->variables);
+		extract($this->variables);
 		return require $this->view;
 	}
 
@@ -49,7 +51,7 @@ class Controller
 	protected function render($page, $template = NULL)
 	{
 		$this->setView($page);
-		\extract($this->variables);
+		extract($this->variables);
 		if ($template) {
 			return require $this->getTemplateFrom($template);
 		}
@@ -58,11 +60,11 @@ class Controller
 
 	protected function contentType(string $mime)
 	{
-		\header("Content-Type: ".$mime);
+		header("Content-Type: ".$mime);
 	}
 
 	protected function printJson()
 	{
-		return \json_encode($this->variables);
+		return json_encode($this->variables);
 	}
 }
