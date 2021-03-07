@@ -165,4 +165,35 @@ class Request
 			$callback($this->options);
 		}
 	}
+
+	public static function getHttpHeaders() {
+		$out = array();
+		foreach($_SERVER as $key => $value) {
+			if (substr($key, 0, 5) == "HTTP_") {
+				$key = str_replace(
+					" ",
+					"-",
+					ucwords(
+						strtolower(
+							str_replace(
+								"_",
+								" ",
+								substr($key, 5)
+							)
+						)
+					)
+				);
+				$out[$key] = $value;
+			}
+		}
+		return $out;
+	}
+
+	public static function getHttpHeader($headerName) {
+		$headers = self::getHttpHeaders();
+		if (isset($headers[$headerName])) {
+			return $headers[$headerName];
+		}
+		return null;
+	}
 }
