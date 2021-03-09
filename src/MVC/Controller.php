@@ -65,6 +65,8 @@ class Controller
 
 	protected function printJson()
 	{
-		return json_encode($this->variables);
+		return print_r(
+			json_encode($this->variables)
+		);
 	}
 }
