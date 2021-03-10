@@ -69,4 +69,8 @@ class Controller
 			json_encode($this->variables)
 		);
 	}
+
+	protected function httpResponseCode($code) {
+		return http_response_code($code);
+	}
 }

@@ -184,6 +184,8 @@ class Request
 					)
 				);
 				$out[$key] = $value;
+			} else {
+				$out[$key] = $value;
 			}
 		}
 		return $out;
