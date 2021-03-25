@@ -63,14 +63,28 @@ class Controller
 		header("Content-Type: ".$mime);
 	}
 
-	protected function printJson()
+	private static function toJson(array $src)
 	{
-		return print_r(
-			json_encode($this->variables)
-		);
+		$array = array();
+
+		foreach ($src as $key => $value) {
+			if (is_array($value)) {
+				$array[$key] = json_decode(self::toJson($value));
+			} else {
+				$array[$key] = $value;
+			}
+		}
+
+		return json_encode($array);
 	}
 
-	protected function httpResponseCode($code) {
+	protected function printJson()
+	{
+		return print(self::toJson($this->variables));
+	}
+
+	protected function httpResponseCode($code)
+	{
 		return http_response_code($code);
 	}
 }
