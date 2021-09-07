@@ -19,6 +19,11 @@ class Controller
 		$this->variables[$key] = $value;
 	}
 
+	protected function setVariablesArray(array $variables)
+	{
+		$this->variables = $variables;
+	}
+
 	protected function unsetVariable($key)
 	{
 		unset($this->variables[$key]);
