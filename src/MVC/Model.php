@@ -11,6 +11,10 @@ abstract class Model
 	protected abstract function selectRow($row);
 	protected abstract function insertData();
 	protected abstract function assignData(&$data);
+	
+	public static function newInstance() {
+		return new static();
+	}
 
 	public function __construct($table) {
 		$this->table = $table;
@@ -52,5 +56,23 @@ abstract class Model
 	public function delete() {
 		$this->table->removeWhere( fn($row) => $this->selectRow($row) );
 		return $this->table->commit();
+	}
+
+	public static function get(...$args) {
+		$ret = static::newInstance();
+		$ret->load(...$args);
+		return $ret;
+	}
+
+	public static function getAll() {
+		$ret = array();
+		$db = static::newInstance();
+
+		foreach ($db->table as $value) {
+			$new = static::newInstance();
+			$new->loadData($value);
+			$ret[] = $new;
+		}
+		return $ret;
 	}
 }
