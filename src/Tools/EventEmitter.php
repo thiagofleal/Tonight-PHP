@@ -3,58 +3,87 @@
 namespace Tonight\Tools;
 
 use json_encode;
+use json_decode;
 
-class EventEmitter {
-    private $formatter;
-    private $callback;
+class EventEmitter
+{
+    private $id;
+    private $fileName;
+    private $dir;
+    private static $baseFileName = "event_{id}.sse";
 
-    const TEXT = 0;
-    const JSON = 1;
+    public function __construct($id) {
+        $this->id = $id;
+        $this->fileName = str_replace("{id}", $id, self::$baseFileName);
+        $this->dir = sys_get_temp_dir();
+    }
 
-    public function __construct($formatter) {
-        if (!is_callable($formatter)) {
-            switch($formatter) {
-                case self::TEXT:
-                    $formatter = function($value) { return $value; };
-                    break;
-                case self::JSON:
-                    $formatter = function($value) { return json_encode($value); };
-                    break;
-                default:
-                    $formatter = function () { return ""; };
-            }
+    public function emit($event, $data = array(), $id = NULL) {
+        $fileName = "{$this->dir}/{$this->fileName}";
+        if ($id === NULL) {
+            $id = time().rand(0, 9999);
         }
-        $this->formatter = $formatter;
-        $this->callback = null;
+        $content = array(
+            "event" => $event,
+            "id" => $id,
+            "data" => json_encode($data)
+        );
+        $file = fopen($fileName, "a");
+        fwrite($file, json_encode($content).PHP_EOL);
+        fclose($file);
     }
 
-    public function register(callable $callback) {
-        $this->callback = $callback;
-    }
+    public function subscribe($interval = NULL, array $events = NULL) {
+        Session::start();
 
-    public function emit(string $event, string $id, array $data) {
-        $formatter = $this->formatter;
-
-        echo "event: ".$event.PHP_EOL;
-        echo "id: ".$id.PHP_EOL;
-        echo "data: ".$formatter($data).PHP_EOL;
-        echo PHP_EOL;
-        ob_end_flush();
-        flush();
-    }
-
-    public function start($interval = 100) {
         header('Content-Type: text/event-stream');
         header('Cache-Control: no-cache');
+        @flush();
+        @ob_end_flush();
+        
+        if (!is_int($interval)) {
+            $interval = 100;
+        }
+        $fileName = "{$this->dir}/{$this->fileName}";
         $interval = intval($interval);
-        $count = 0;
-        $callback = $this->callback;
-
+        $file = fopen($fileName, "a");
+        $sent = array();
+        
+        if (Session::isset("sent")) {
+            $sent = Session::get("sent");
+        }
         while (!connection_aborted()) {
-            if (is_callable($callback)) {
-                $callback($this, $count++);
+            $content = file_get_contents($fileName);
+            $items = explode(PHP_EOL, trim($content));
+            
+            foreach ($items as $item) {
+                $json = json_decode($item);
+
+                if (!empty($json->id)) {
+                    $event = $json->event;
+                    $id = $json->id;
+                    $data = $json->data;
+
+                    if ($events !== NULL) {
+                        if (!in_array($event, $events)) {
+                            break;
+                        }
+                    }
+                    if (!in_array($id, $sent)) {
+                        echo "event: ".$event.PHP_EOL;
+                        echo "id: ".$id.PHP_EOL;
+                        echo "data: ".$data.PHP_EOL;
+                        echo PHP_EOL;
+                        @flush();
+                        @ob_end_flush();
+                        $sent[] = $id;
+                        Session::set("sent", $sent);
+                    }
+                }
             }
             usleep($interval * 1000);
         }
+        fclose($file);
+        unlink($fileName);
     }
 }
