@@ -34,6 +34,13 @@ class Session
 		return $session;
 	}
 
+	public static function getOrDefault($key, $default = NULL) {
+		if (self::isset($key)) {
+			return self::get($key);
+		}
+		return $default;
+	}
+
 	public static function unset($key)
 	{
 		self::start();
