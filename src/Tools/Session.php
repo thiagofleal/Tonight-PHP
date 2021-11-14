@@ -4,18 +4,25 @@ namespace Tonight\Tools;
 
 class Session
 {
+	private static $started = false;
+
 	public static function start()
 	{
-		session_start();
+		if (!self::$started) {
+			session_start();
+			self::$started = true;
+		}
 	}
 
 	public static function set($key, $value)
 	{
+		self::start();
 		$_SESSION[$key] = $value;
 	}
 
 	public static function get($key = NULL)
 	{
+		self::start();
 		if ($key !== NULL) {
 			return $_SESSION[$key];
 		}
@@ -27,18 +34,28 @@ class Session
 		return $session;
 	}
 
+	public static function getOrDefault($key, $default = NULL) {
+		if (self::isset($key)) {
+			return self::get($key);
+		}
+		return $default;
+	}
+
 	public static function unset($key)
 	{
+		self::start();
 		unset($_SESSION[$key]);
 	}
 
 	public static function isset($key)
 	{
+		self::start();
 		return isset($_SESSION[$key]);
 	}
 
 	public static function setEmpty($key, $value)
 	{
+		self::start();
 		if (!isset($_SESSION[$key])) {
 			$_SESSION[$key] = $value;
 		}
@@ -46,6 +63,7 @@ class Session
 
 	public static function getFlash($key = NULL)
 	{
+		self::start();
 		if ($key !== NULL) {
 			$ret = $_SESSION[$key];
 			unset($_SESSION[$key]);
