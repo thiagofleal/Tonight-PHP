@@ -62,16 +62,17 @@ class EventEmitter
         Session::start();
 
         $sender = new EventSender(EventSender::TEXT);
-
         $fileName = "{$this->dir}/{$this->fileName}";
-        $interval = intval($interval);
-        $file = fopen($fileName, "a");
         
         if (is_int($this->timeout)) {
             $sender->setTimeout($this->timeout);
         }
         $sender->register( function($self) use($fileName, $events) {
-            $content = file_get_contents($fileName);
+            $content = "";
+            
+            if (file_exists($fileName)) {
+                $content = file_get_contents($fileName);
+            }
             $items = explode(PHP_EOL, trim($content));
             $sent = Session::getOrDefault("sent", array());
 
@@ -100,10 +101,13 @@ class EventEmitter
                     }
                 }
             }
-            file_put_contents($fileName, implode(PHP_EOL, $items).PHP_EOL);
-        });
-        $sender->onExit( function() use($file) {
-            fclose($file);
+            if (count($items)) {
+                file_put_contents($fileName, implode(PHP_EOL, $items).PHP_EOL);
+            } else {
+                if (file_exists($fileName)) {
+                    @unlink($fileName);
+                }
+            }
         });
         $sender->start($interval);
     }
