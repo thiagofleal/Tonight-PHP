@@ -11,7 +11,7 @@ class EventEmitter
     private $fileName;
     private $dir;
     private $expires = 10;
-    private $timeout = NULL;
+    private $timeout = false;
     private static $baseFileName = "event_{id}.sse";
 
     public function __construct($id) {
@@ -24,7 +24,7 @@ class EventEmitter
         if (is_numeric($timeout)) {
             $this->timeout = intval($timeout);
         } else {
-            $this->timeout = NULL;
+            $this->timeout = false;
         }
     }
 
