@@ -8,7 +8,7 @@ class EventSender {
     private $formatter;
     private $callback;
     private $atExit;
-    private $timeout = 30;
+    private $timeout = false;
 
     const TEXT = 0;
     const JSON = 1;
@@ -46,6 +46,8 @@ class EventSender {
     public function setTimeout($timeout) {
         if (is_int($timeout)) {
             $this->timeout = $timeout;
+        } else {
+            $this->timeout = false;
         }
     }
 
@@ -65,6 +67,10 @@ class EventSender {
     }
 
     public function start($interval = NULL) {
+        if (! headers_sent()) {
+            header_remove("content-type");
+            header_remove("cache-control");
+        }
         header('Content-Type: text/event-stream');
         header('Cache-Control: no-cache');
         self::flush();
@@ -76,9 +82,12 @@ class EventSender {
         $count = 0;
         $callback = $this->callback;
         $exit = $this->atExit;
-        $ends = time() + $this->timeout;
-
-        while (!connection_aborted() && time() < $ends) {
+        $ends = false;
+        
+        if ($this->timeout) {
+            $ends = time() + $this->timeout;
+        }
+        while (!connection_aborted() && (!$ends || time() < $ends)) {
             if (is_callable($callback)) {
                 $callback($this, $count++);
             }
