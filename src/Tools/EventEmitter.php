@@ -59,22 +59,21 @@ class EventEmitter
     }
 
     public function subscribe($interval = NULL, array $events = NULL) {
-        Session::start();
-
         $sender = new EventSender(EventSender::TEXT);
         $fileName = "{$this->dir}/{$this->fileName}";
+        $sent = array();
         
         if (is_int($this->timeout)) {
             $sender->setTimeout($this->timeout);
         }
-        $sender->register( function($self) use($fileName, $events) {
+        $sender->register( function($self) use($fileName, $events, &$sent) {
             $content = "";
             
             if (file_exists($fileName)) {
                 $content = file_get_contents($fileName);
             }
             $items = explode(PHP_EOL, trim($content));
-            $sent = Session::getOrDefault("sent", array());
+            $keys = array();
 
             foreach ($items as $key => $item) {
                 $json = json_decode($item);
@@ -86,7 +85,7 @@ class EventEmitter
                     $expires = intval($json->expires);
 
                     if ($expires < time()) {
-                        unset($items[$key]);
+                        $keys[] = $key;
                         continue;
                     }
                     if ($events !== NULL) {
@@ -97,9 +96,11 @@ class EventEmitter
                     if (!in_array($id, $sent)) {
                         $self->send($event, $id, $data);
                         $sent[] = $id;
-                        Session::set("sent", $sent);
                     }
                 }
+            }
+            foreach ($keys as $key) {
+                unset($items[$key]);
             }
             if (count($items)) {
                 file_put_contents($fileName, implode(PHP_EOL, $items).PHP_EOL);
