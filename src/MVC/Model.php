@@ -2,6 +2,8 @@
 
 namespace Tonight\MVC;
 
+use Tonight\Collections\ArrayList;
+
 abstract class Model
 {
 	private $table;
@@ -73,6 +75,6 @@ abstract class Model
 			$new->loadData($value);
 			$ret[] = $new;
 		}
-		return $ret;
+		return new ArrayList($ret);
 	}
 }
