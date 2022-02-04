@@ -17,7 +17,7 @@ class Table extends ArrayList
 	private $deletes;
 	private $inserts;
 	private $rowInsert;
-
+	
 	private function updateData()
 	{
 		$db = $this->db->getConnection();
@@ -39,7 +39,7 @@ class Table extends ArrayList
 		return $new;
 	}
 
-	public function __construct(DataBase $db, $name)
+	public function __construct(DataBase $db, $name, $load = true)
 	{
 		parent::__construct();
 		$this->db = $db;
@@ -50,7 +50,10 @@ class Table extends ArrayList
 		$this->sets = array();
 		$this->deletes = array();
 		$this->inserts = array();
-		$this->updateData();
+		
+		if ($load) {
+			$this->updateData();
+		}
 		$this->rowInsert = array();
 	}
 
@@ -180,5 +183,19 @@ class Table extends ArrayList
 		$this->inserts = array();
 		
 		return $ret;
+	}
+
+	public function selectQuery($select, $where)
+	{
+		$db = $this->db->getConnection();
+		$sql = "SELECT {$select} FROM {$this->idName} WHERE {$where}";
+		$sql = $db->query($sql);
+
+		if ($sql === false) {
+			$data = array();
+		} else {
+			$data = $sql->fetchAll();
+		}
+		$this->setData($data);
 	}
 }
