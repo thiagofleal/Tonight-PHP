@@ -4,6 +4,7 @@ namespace Tonight\Tools;
 
 use json_encode;
 use json_decode;
+use call_user_func;
 
 class EventEmitter
 {
@@ -12,6 +13,8 @@ class EventEmitter
     private $dir;
     private $expires = 10;
     private $timeout = false;
+    private $filters = array();
+    private $map = NULL;
     private static $baseFileName = "event_{id}.sse";
 
     public function __construct($id) {
@@ -58,7 +61,22 @@ class EventEmitter
         fclose($file);
     }
 
-    public function subscribe($interval = NULL, array $events = NULL) {
+    public function addFilter(callable $filter) {
+        $this->filters[] = $filter;
+        $index = count($this->filters) - 1;
+        return function () use ($index) {
+            unset($this->filters[$index]);
+        };
+    }
+
+    public function setMap(callable $transform) {
+        $this->map = $transform;
+        return function () {
+            $this->map = NULL;
+        };
+    }
+
+    public function subscribe($interval = NULL) {
         $sender = new EventSender(EventSender::TEXT);
         $fileName = "{$this->dir}/{$this->fileName}";
         $sent = array();
@@ -66,7 +84,7 @@ class EventEmitter
         if (is_int($this->timeout)) {
             $sender->setTimeout($this->timeout);
         }
-        $sender->register( function($self) use($fileName, $events, &$sent) {
+        $sender->register( function($self) use($fileName, &$sent) {
             $content = "";
             
             if (file_exists($fileName)) {
@@ -88,14 +106,21 @@ class EventEmitter
                         $keys[] = $key;
                         continue;
                     }
-                    if ($events !== NULL) {
-                        if (!in_array($event, $events)) {
-                            continue;
-                        }
-                    }
                     if (!in_array($id, $sent)) {
-                        $self->send($event, $id, $data);
-                        $sent[] = $id;
+                        $ctrl = true;
+
+                        foreach ($this->filters as $filter) {
+                            if ($ctrl) {
+                                $ctrl = call_user_func($filter, json_decode($data));
+                            }
+                        }
+                        if ($ctrl) {
+                            if ($this->map !== NULL) {
+                                $data = json_encode(call_user_func($this->map, json_decode($data)));
+                            }
+                            $self->send($event, $id, $data);
+                            $sent[] = $id;
+                        }
                     }
                 }
             }
