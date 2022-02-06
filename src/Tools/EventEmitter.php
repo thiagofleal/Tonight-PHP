@@ -15,11 +15,11 @@ class EventEmitter
     private $timeout = false;
     private $filters = array();
     private $map = NULL;
-    private static $baseFileName = "event_{id}.sse";
+    private static $baseFileName = "event.{event}.{id}.sse";
 
-    public function __construct($id) {
-        $this->id = $id;
-        $this->fileName = str_replace("{id}", $id, self::$baseFileName);
+    public function __construct($name) {
+        $this->id = $name;
+        $this->fileName = str_replace("{event}", $name, self::$baseFileName);
         $this->dir = sys_get_temp_dir();
     }
 
@@ -50,15 +50,14 @@ class EventEmitter
         if ($id === NULL) {
             $id = "".time().rand(0, 9999);
         }
+        $fileName = str_replace("{id}", $id, $fileName);
         $content = array(
             "event" => $event,
             "id" => $id,
             "data" => json_encode($data),
             "expires" => time() + $this->expires
         );
-        $file = fopen($fileName, "a");
-        fwrite($file, json_encode($content).PHP_EOL);
-        fclose($file);
+        file_put_contents($fileName, json_encode($content).PHP_EOL);
     }
 
     public function addFilter(callable $filter) {
@@ -79,6 +78,7 @@ class EventEmitter
     public function subscribe($interval = NULL) {
         $sender = new EventSender(EventSender::TEXT);
         $fileName = "{$this->dir}/{$this->fileName}";
+        $fileName = str_replace("{id}", "*", $fileName);
         $sent = array();
         
         if (is_int($this->timeout)) {
@@ -86,15 +86,11 @@ class EventEmitter
         }
         $sender->register( function($self) use($fileName, &$sent) {
             $content = "";
+            $files = glob($fileName);
             
-            if (file_exists($fileName)) {
-                $content = file_get_contents($fileName);
-            }
-            $items = explode(PHP_EOL, trim($content));
-            $keys = array();
-
-            foreach ($items as $key => $item) {
-                $json = json_decode($item);
+            foreach ($files as $file) {
+                $content = file_get_contents($file);
+                $json = json_decode($content);
 
                 if (!empty($json->id)) {
                     $event = $json->event;
@@ -103,7 +99,7 @@ class EventEmitter
                     $expires = intval($json->expires);
 
                     if ($expires < time()) {
-                        $keys[] = $key;
+                        @unlink($file);
                         continue;
                     }
                     if (!in_array($id, $sent)) {
@@ -122,16 +118,6 @@ class EventEmitter
                             $sent[] = $id;
                         }
                     }
-                }
-            }
-            foreach ($keys as $key) {
-                unset($items[$key]);
-            }
-            if (count($items)) {
-                file_put_contents($fileName, implode(PHP_EOL, $items).PHP_EOL);
-            } else {
-                if (file_exists($fileName)) {
-                    @unlink($fileName);
                 }
             }
         });
