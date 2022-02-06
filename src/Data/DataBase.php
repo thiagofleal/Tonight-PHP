@@ -46,6 +46,11 @@ class DataBase
 		}
 	}
 
+	public function getTable($name, $load = true)
+	{
+		return new Table($this, $name, $load);
+	}
+
 	public function getDBMS() { return $this->dbms; }
 	public function dbName() { return $this->dbName; }
 	public function tableNames() { return $this->tableNames; }
