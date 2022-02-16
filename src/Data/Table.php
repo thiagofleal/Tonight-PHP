@@ -17,19 +17,14 @@ class Table extends ArrayList
 	private $deletes;
 	private $inserts;
 	private $rowInsert;
+	private $defaultQuery;
+	private $autoUpdate;
 	
 	private function updateData()
 	{
-		$db = $this->db->getConnection();
-		$sql = "SELECT * FROM ".$this->idName;
-		$sql = $db->query($sql);
-
-		if ($sql === false) {
-			$data = array();
-		} else {
-			$data = $sql->fetchAll();
+		if ($this->autoUpdate) {
+			$this->defaultQuery->execute();
 		}
-		$this->setData($data);
 	}
 
 	public function newInstance($data)
@@ -50,11 +45,35 @@ class Table extends ArrayList
 		$this->sets = array();
 		$this->deletes = array();
 		$this->inserts = array();
-		
-		if ($load) {
-			$this->updateData();
-		}
+		$this->defaultQuery = $this->query();
+		$this->autoUpdate = $load;
+		$this->updateData();
 		$this->rowInsert = array();
+	}
+
+	public function setAutoUpdate($autoUpdate)
+	{
+		$this->autoUpdate = $autoUpdate;
+	}
+
+	public function getDB()
+	{
+		return $this->db;
+	}
+
+	public function getConnection()
+	{
+		return $this->db->getConnection();
+	}
+
+	public function getName()
+	{
+		return $this->name;
+	}
+
+	public function getIdName()
+	{
+		return $this->idName;
 	}
 
 	public function getPrimaryKeys()
@@ -135,7 +154,7 @@ class Table extends ArrayList
 		$ret = 0;
 		
 		if (count($this->sets)) {
-			$pdo = $this->db->getConnection();
+			$pdo = $this->getConnection();
 			$sql = '';
 			foreach ($this->sets as $item) {
 				$sql .= "UPDATE ".$this->idName." SET ".implode(",", array_map( function($key, $value) use($dbms) {
@@ -147,12 +166,12 @@ class Table extends ArrayList
 			$ret += $pdo->exec($sql);
 		}
 		if ($count_deletes) {
-			$pdo = $this->db->getConnection();
+			$pdo = $this->getConnection();
 			$sql = "DELETE FROM ".$this->idName." WHERE ".implode(" OR ", $this->deletes);
 			$ret += $pdo->exec($sql);
 		}
 		if (count($this->inserts)) {
-			$pdo = $this->db->getConnection();
+			$pdo = $this->getConnection();
 			$sql = '';
 			foreach ($this->inserts as $key) {
 				$sql .= "INSERT INTO ".$this->idName
@@ -185,17 +204,13 @@ class Table extends ArrayList
 		return $ret;
 	}
 
-	public function selectQuery($select, $where)
+	public function getDefaultQuery()
 	{
-		$db = $this->db->getConnection();
-		$sql = "SELECT {$select} FROM {$this->idName} WHERE {$where}";
-		$sql = $db->query($sql);
+		return $this->defaultQuery;
+	}
 
-		if ($sql === false) {
-			$data = array();
-		} else {
-			$data = $sql->fetchAll();
-		}
-		$this->setData($data);
+	public function query()
+	{
+		return new Query($this);
 	}
 }
