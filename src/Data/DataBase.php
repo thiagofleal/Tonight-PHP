@@ -45,10 +45,10 @@ class DataBase
 		}
 	}
 
-	public function loadTable($table, $load = true)
+	public function loadTable($table)
 	{
 		$this->tableNames[] = $table;
-		$this->{$table} = new Table($this, $table, $load);
+		$this->{$table} = new Table($this, $table);
 	}
 
 	public function getTable($name, $load = true)
