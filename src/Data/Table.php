@@ -33,14 +33,16 @@ class Table
 		$this->deletes = array();
 		$this->inserts = array();
 		$this->rowsInserted = array();
+        $this->restartQuery();
+	}
 
-        $this->sql = "";
+	private function restartQuery() {
+		$this->sql = "";
         $this->select = "SELECT *";
         $this->from = " FROM ".$this->getIdName();
         $this->where = array();
         $this->order = "";
         $this->limit = "";
-        $this->build();
 	}
 
     private function identifier($str) {
@@ -170,6 +172,7 @@ class Table
         $this->build();
 		$db = $this->getConnection();
 		$sql = $db->query($this->sql);
+		$this->restartQuery();
 
 		if ($sql === false) {
 			$data = array();
