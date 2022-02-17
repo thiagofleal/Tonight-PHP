@@ -97,9 +97,10 @@ class Table
         return $this;
     }
 
-    public function getSQL() {
-        return $this->sql;
-    }
+	public function selectAll() {
+		$this->restartQuery();
+		return $this;
+	}
 
 	public function select($fields) {
         $select = array();
