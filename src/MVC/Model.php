@@ -2,6 +2,7 @@
 
 namespace Tonight\MVC;
 
+use Tonight\Data\Table;
 use Tonight\Collections\ArrayList;
 
 abstract class Model
@@ -18,7 +19,12 @@ abstract class Model
 		return new static();
 	}
 
-	public function __construct($table) {
+	public static function getTable() {
+		$model = static::newInstance();
+		return $model->table;
+	}
+
+	public function __construct(Table $table) {
 		$this->table = $table;
 	}
 
@@ -67,15 +73,19 @@ abstract class Model
 		return $ret;
 	}
 
-	public static function getAll() {
+	public static function getFromValues(iterable $values) {
 		$ret = array();
-		$db = static::newInstance();
 
-		foreach ($db->table->toArray() as $value) {
+		foreach ($values as $value) {
 			$new = static::newInstance();
 			$new->loadData($value);
 			$ret[] = $new;
 		}
 		return new ArrayList($ret);
+	}
+
+	public static function getAll() {
+		$table = static::getTable();
+		return self::getFromValues($table->selectAll());
 	}
 }
