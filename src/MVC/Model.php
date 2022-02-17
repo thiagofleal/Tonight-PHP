@@ -71,7 +71,7 @@ abstract class Model
 		$ret = array();
 		$db = static::newInstance();
 
-		foreach ($db->table as $value) {
+		foreach ($db->table->toArray() as $value) {
 			$new = static::newInstance();
 			$new->loadData($value);
 			$ret[] = $new;
