@@ -86,6 +86,6 @@ abstract class Model
 
 	public static function getAll() {
 		$table = static::getTable();
-		return self::getFromValues($table->selectAll());
+		return self::getFromValues($table->selectAll()->toArray());
 	}
 }
