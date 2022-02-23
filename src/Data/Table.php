@@ -5,7 +5,7 @@ namespace Tonight\Data;
 use Tonight\Collections\ArrayList;
 use stdClass;
 use PDO;
-use str_contains;
+use strpos;
 use is_string;
 
 class Table
@@ -50,7 +50,7 @@ class Table
     private function identifier($str) {
         $parts = explode(".", $str);
         return implode(".", array_map( function($part) {
-            if ($part === "*" || str_contains($part, "(")) {
+            if ($part === "*" || strpos($part, "(") !== FALSE) {
                 return $part;
             }
             return $this->getDB()->getDBMS()->identifier($part);
@@ -111,10 +111,10 @@ class Table
             $fields = array($fields);
         }
         foreach ($fields as $key => $field) {
-            if ($field === "*" || str_contains($field, "(")) {
+            if ($field === "*" || strpos($field, "(") !== FALSE) {
                 $select[] = $field;
             } elseif (is_string($key) && is_string($field)) {
-                if (!str_contains($key, "(")) {
+                if (strpos($key, "(") === FALSE) {
                     $key = $this->identifier($key);
                 }
                 $select[] = $key." AS ".$this->identifier($field);
@@ -151,7 +151,7 @@ class Table
     }
 
     public function orderBy($field, $mode) {
-        if (!str_contains($field, "(")) {
+        if (strpos($field, "(") === FALSE) {
             $field = $this->identifier($field);
         }
         $this->order = " ORDER BY {$field} {$mode}";
