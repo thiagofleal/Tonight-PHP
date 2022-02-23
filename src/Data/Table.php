@@ -2,9 +2,11 @@
 
 namespace Tonight\Data;
 
+use Tonight\Collections\ArrayList;
 use stdClass;
 use PDO;
-use Tonight\Collections\ArrayList;
+use str_contains;
+use is_string;
 
 class Table
 {
