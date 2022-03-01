@@ -51,9 +51,9 @@ class EventSender {
         }
     }
 
-    private static function flush() {
-        @flush();
-        @ob_end_flush();
+    private function flush() {
+        ob_flush();
+        flush();
     }
 
     public function send(string $event, string $id, $data) {
@@ -63,7 +63,7 @@ class EventSender {
         echo "id: ".$id.PHP_EOL;
         echo "data: ".$formatter($data).PHP_EOL;
         echo PHP_EOL;
-        self::flush();
+        $this->flush();
     }
 
     public function start($interval = NULL) {
@@ -71,9 +71,13 @@ class EventSender {
             header_remove("content-type");
             header_remove("cache-control");
         }
-        header('Content-Type: text/event-stream');
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        ob_start();
+        header('Content-Type: text/event-stream; charset=utf-8');
         header('Cache-Control: no-cache');
-        self::flush();
+        $this->flush();
 
         if (!is_int($interval)) {
             $interval = 100;
@@ -91,11 +95,12 @@ class EventSender {
             if (is_callable($callback)) {
                 $callback($this, $count++);
             }
-            self::flush();
+            $this->flush();
             usleep($interval * 1000);
         }
         if (is_callable($exit)) {
             $exit();
         }
+        ob_end_flush();
     }
 }
