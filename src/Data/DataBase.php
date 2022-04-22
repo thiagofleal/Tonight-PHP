@@ -41,9 +41,19 @@ class DataBase
 	public function load(...$tables)
 	{
 		foreach ($tables as $table) {
-			$this->tableNames[] = $table;
-			$this->{$table} = new Table($this, $table);
+			$this->loadTable($table);
 		}
+	}
+
+	public function loadTable($table)
+	{
+		$this->tableNames[] = $table;
+		$this->{$table} = new Table($this, $table);
+	}
+
+	public function getTable($name, $load = true)
+	{
+		return new Table($this, $name, $load);
 	}
 
 	public function getDBMS() { return $this->dbms; }
