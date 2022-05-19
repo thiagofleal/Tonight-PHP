@@ -6,7 +6,7 @@ use json_encode;
 
 class Client
 {
-    const JSON = "text/json";
+    const JSON = "application/json";
     const URL_ENCODED = "application/x-www-form-urlencoded";
     const PLAIN = "text/plain";
 
