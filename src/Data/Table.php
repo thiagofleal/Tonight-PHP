@@ -24,7 +24,7 @@ class Table
     private $where;
     private $order;
     private $limit;
-	
+
 	public function __construct(DataBase $db, $name) {
 		$this->db = $db;
 		$this->name = $name;
@@ -58,11 +58,15 @@ class Table
     }
 
     private function formatValue($value) {
-        if ($value === NULL || (is_string($value) && strlen($value) == 0)) {
+        if (!isset($value) || $value === NULL) {
             $value = "NULL";
         } elseif (is_string($value)) {
             $value = "'".addslashes($value)."'";
-        }
+        } elseif (is_array($value)) {
+			$value = "(".implode(",", $value).")";
+		} elseif (is_bool($value)) {
+			$value = $value ? "1" : "0";
+		}
         return $value;
     }
 
@@ -129,7 +133,7 @@ class Table
 
     public function where($field, $operator, $value) {
         $value = $this->formatValue($value);
-        $this->where[] = $this->identifier($field).$operator.$this->formatValue($value);
+        $this->where[] = $this->identifier($field).$operator.$value;
         return $this;
     }
 
@@ -268,7 +272,7 @@ class Table
 		$dbms = $this->db->getDBMS();
 		$insert = false;
 		$ret = 0;
-		
+
 		if (count($this->sets)) {
 			$pdo = $this->getConnection();
 			$sql = '';
@@ -301,7 +305,7 @@ class Table
 				}, (array)$insert)).")";
 				$ret += $pdo->exec($sql);
 				$keys = $this->pkValuesArray($insert);
-				
+
 				if ($keys !== FALSE) {
 					$this->rowsInserted[] = $keys;
 				} else {
@@ -317,7 +321,7 @@ class Table
 		$this->sets = array();
 		$this->deletes = array();
 		$this->inserts = array();
-		
+
 		return $ret;
 	}
 }
