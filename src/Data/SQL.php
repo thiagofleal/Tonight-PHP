@@ -14,4 +14,7 @@ class SQL
     
     const ASC = "ASC";
     const DESC = "DESC";
+
+    const AND = "AND";
+    const OR = "OR";
 }
