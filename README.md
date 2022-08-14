@@ -15,6 +15,7 @@ composer require thiagofleal/tonight-php
 <?php
 
 use Tonight\Data\DataBase;
+use Tonight\Data\SQL;
 use Tonight\Data\Drivers\MySQL;
 
 $database = new DataBase(
@@ -42,9 +43,7 @@ $all = $database->tbl_test;
 $array = $database->tbl_test->get();
 
 /* Select rows */
-$selected = $database->tbl_test->where( function($row) {
-  return $row->id == 10;
-});
+$selected = $database->tbl_test->where('id', SQL::EQUAL, 10)->toArrayList();
 
 /* Update row */
 $update = $selected->first();
@@ -53,9 +52,7 @@ $database->tbl_test->setValue($update);
 $database->tbl_test->commit();
 
 /* Delete row */
-$database->tbl_test->deleteWhere( function($row) {
-  return $row->id == 5;
-});
+$database->tbl_test->deleteWhere('id', SQL::EQUAL, 5);
 $database->tbl_test->commit();
 ```
 
