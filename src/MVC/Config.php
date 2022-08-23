@@ -88,8 +88,8 @@ class Config
 		self::$inputProperties = $inputProperties;
 	}
 
-	public static function addRoute($url, $respond)
+	public static function addRoute($url, $respond, $methods = NULL)
 	{
-		self::$routes[] = array($url, $respond);
+		self::$routes[] = array($url, $respond, $methods);
 	}
 }
