@@ -3,6 +3,7 @@
 namespace Tonight\Data;
 
 use Tonight\Collections\ArrayList;
+use Tonight\Exceptions\DataBaseException;
 use stdClass;
 use PDO;
 use strpos;
@@ -131,10 +132,31 @@ class Table
         return $this;
 	}
 
+	private function buildWhereOperation($field, $operator, $value) {
+		$value = $this->formatValue($value);
+		return $this->identifier($field).$operator.$value;
+	}
+
     public function where($field, $operator, $value) {
-        $value = $this->formatValue($value);
-        $this->where[] = $this->identifier($field).$operator.$value;
-        return $this;
+		if (is_string($field)) {
+			$this->where[] = $this->buildWhereOperation($field, $operator, $value);
+			return $this;
+		}
+		if (is_array($field) && is_array($value)) {
+			$op0 = "";
+			$op1 = "";
+			if (count($field) === 3) {
+				$op0 = $this->buildWhereOperation($field[0], $field[1], $field[2]);
+			}
+			if (count($value) === 3) {
+				$op1 = $this->buildWhereOperation($value[0], $value[1], $value[2]);
+			}
+			if (!empty($op0) && !empty($op1)) {
+				$this->where[] = "($op0 $operator $op1)";
+				return $this;
+			}
+		}
+		throw new DataBaseException("Impossible to create query from arguments");
     }
 
     public function find(iterable $fields) {

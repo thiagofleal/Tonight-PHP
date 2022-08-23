@@ -2,6 +2,8 @@
 
 namespace Tonight\Collections;
 
+use ARRAY_FILTER_USE_BOTH;
+
 class ArrayList extends Collection
 {
 	private $data;
@@ -263,6 +265,22 @@ class ArrayList extends Collection
 			$array[] = $this->data[$i];
 		}
 
+		return $this->newInstance($array);
+	}
+
+	public function map(callable $callback, $useKeys = TRUE) {
+		$array = array();
+
+		if ($useKeys) {
+			$array = array_map($callback, $this->get(), array_keys($this->get()));
+		} else {
+			$array = array_map($callback, $this->get());
+		}
+		return $this->newInstance($array);
+	}
+
+	public function filter(callable $callback, $flag = ARRAY_FILTER_USE_BOTH) {
+		$array = array_filter($this->get(), $callback, $flag);
 		return $this->newInstance($array);
 	}
 }
