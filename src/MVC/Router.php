@@ -9,7 +9,7 @@ class Router
 {
 	public static function getLink(...$args)
 	{
-		return Config::getBaseUrl() . Config::getRoutesFolder() . implode("/", $args);
+		return Config::getBaseUrl() . Config::getPath() . implode("/", $args);
 	}
 
 	public static function redirect(...$args)
@@ -52,7 +52,7 @@ class Router
 				}
 			}
 			$args = new stdclass;
-			$urlRoute = explode('/', Config::getRoutesFolder() . $route[0]);
+			$urlRoute = explode('/', Config::getPath() . $route[0]);
 
 			if (count($url) == count($urlRoute)) {
 				for ($i = 0; $i < count($url); $i++) {

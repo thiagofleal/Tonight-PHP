@@ -15,8 +15,8 @@ abstract class Model
 	protected abstract function insertData();
 	protected abstract function assignData(&$data);
 	
-	public static function newInstance() {
-		return new static();
+	public static function newInstance(...$args) {
+		return new static(...$args);
 	}
 
 	public static function getTable() {

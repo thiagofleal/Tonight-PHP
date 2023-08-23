@@ -4,10 +4,7 @@ namespace Tonight\Data;
 
 use Tonight\Collections\ArrayList;
 use Tonight\Exceptions\DataBaseException;
-use stdClass;
-use PDO;
-use strpos;
-use is_string;
+use Exception;
 
 class Table
 {
@@ -16,17 +13,19 @@ class Table
 	private $idName;
 	private $pk;
 	private $fk;
+	private $sql;
 	private $sets;
 	private $deletes;
 	private $inserts;
 	private $rowsInserted;
-    private $select;
-    private $from;
-    private $where;
-    private $order;
-    private $limit;
+	private $select;
+	private $from;
+	private $where;
+	private $order;
+	private $limit;
 
-	public function __construct(DataBase $db, $name) {
+	public function __construct(DataBase $db, $name)
+	{
 		$this->db = $db;
 		$this->name = $name;
 		$this->idName = $db->getDBMS()->identifier($name);
@@ -36,108 +35,118 @@ class Table
 		$this->deletes = array();
 		$this->inserts = array();
 		$this->rowsInserted = array();
-        $this->restartQuery();
+		$this->restartQuery();
 	}
 
-	private function restartQuery() {
+	private function restartQuery()
+	{
 		$this->sql = "";
-        $this->select = "SELECT *";
-        $this->from = " FROM ".$this->getIdName();
-        $this->where = array();
-        $this->order = "";
-        $this->limit = "";
+		$this->select = "SELECT *";
+		$this->from = " FROM " . $this->getIdName();
+		$this->where = array();
+		$this->order = "";
+		$this->limit = "";
 	}
 
-    private function identifier($str) {
-        $parts = explode(".", $str);
-        return implode(".", array_map( function($part) {
-            if ($part === "*" || strpos($part, "(") !== FALSE) {
-                return $part;
-            }
-            return $this->getDB()->getDBMS()->identifier($part);
-        }, $parts));
-    }
+	private function identifier($str)
+	{
+		$parts = explode(".", $str);
+		return implode(".", array_map(function ($part) {
+			if ($part === "*" || strpos($part, "(") !== FALSE) {
+				return $part;
+			}
+			return $this->getDB()->getDBMS()->identifier($part);
+		}, $parts));
+	}
 
-    private function formatValue($value) {
-        if (!isset($value) || $value === NULL) {
-            $value = "NULL";
-        } elseif (is_string($value)) {
-            $value = "'".addslashes($value)."'";
-        } elseif (is_array($value)) {
-			$value = "(".implode(",", $value).")";
+	private function formatValue($value)
+	{
+		if (!isset($value) || $value === NULL) {
+			$value = "NULL";
+		} elseif (is_string($value)) {
+			$value = "'" . addslashes($value) . "'";
+		} elseif (is_array($value)) {
+			$value = "(" . implode(",", $value) . ")";
 		} elseif (is_bool($value)) {
 			$value = $value ? "1" : "0";
 		}
-        return $value;
-    }
+		return $value;
+	}
 
-    private function buildWhereEqual(iterable $fields) {
-        $where = array();
+	private function buildWhereEqual(iterable $fields)
+	{
+		$where = array();
 
-        foreach ($fields as $field => $value) {
-            $where[] = $this->identifier($field)."=".$this->formatValue($value);
-        }
-        return $where;
-    }
+		foreach ($fields as $field => $value) {
+			$where[] = $this->identifier($field) . "=" . $this->formatValue($value);
+		}
+		return $where;
+	}
 
-    private function buildWhere($fields) {
-        if (!count($fields)) {
-            return "";
-        }
-        return " WHERE ".implode(" AND ", $fields);
-    }
+	private function buildWhere($fields)
+	{
+		if (!count($fields)) {
+			return "";
+		}
+		return " WHERE " . implode(" AND ", $fields);
+	}
 
-    private function join($type, $table, iterable $on) {
-        $keys = array();
+	private function join($type, $table, iterable $on)
+	{
+		$keys = array();
 
 		if ($table instanceof Table) {
 			$table = $table->getIdName();
 		} else {
 			$table = $this->identifier($table);
 		}
-        foreach ($on as $first => $second) {
-            $firstField = $this->getIdName().".".$this->identifier($first);
-            $secondField = $table.".".$this->identifier($second);
-            $keys[] = $firstField."=".$secondField;
-        }
-        $this->from .= " {$type} JOIN ".$this->identifier($table)." ON ".implode(" AND ", $keys);
-        return $this;
-    }
+		foreach ($on as $first => $second) {
+			$firstField = $this->getIdName() . "." . $this->identifier($first);
+			$secondField = $table . "." . $this->identifier($second);
+			$keys[] = $firstField . "=" . $secondField;
+		}
+		$this->from .= " {$type} JOIN " . $this->identifier($table) . " ON " . implode(" AND ", $keys);
+		return $this;
+	}
 
-	public function selectAll() {
+	public function selectAll()
+	{
 		$this->restartQuery();
 		return $this;
 	}
 
-	public function select($fields) {
-        $select = array();
+	public function select($fields)
+	{
+		$select = array();
 
-        if (!is_array($fields)) {
-            $fields = array($fields);
-        }
-        foreach ($fields as $key => $field) {
-            if ($field === "*" || strpos($field, "(") !== FALSE) {
-                $select[] = $field;
-            } elseif (is_string($key) && is_string($field)) {
-                if (strpos($key, "(") === FALSE) {
-                    $key = $this->identifier($key);
-                }
-                $select[] = $key." AS ".$this->identifier($field);
-            } elseif (is_string($field)) {
-                $select[] = $this->identifier($field);
-            }
-        }
-        $select = implode(",", $select);
+		if (!is_array($fields)) {
+			$fields = array($fields);
+		}
+		foreach ($fields as $key => $field) {
+			if ($field === "*" || strpos($field, "(") !== FALSE) {
+				$select[] = $field;
+			} elseif (is_string($key) && is_string($field)) {
+				if (strpos($key, "(") === FALSE) {
+					$key = $this->identifier($key);
+				}
+				$select[] = $key . " AS " . $this->identifier($field);
+			} elseif (is_string($field)) {
+				$select[] = $this->identifier($field);
+			}
+		}
+		$select = implode(",", $select);
 		$this->select = "SELECT {$select}";
-        return $this;
+		return $this;
 	}
 
-	private function buildWhereOperation($field, $operator, $value) {
+	private function buildWhereOperation($field, $operator, $value)
+	{
 		$value = $this->formatValue($value);
-		return $this->identifier($field).$operator.$value;
+		return $this->identifier($field) . $operator . $value;
 	}
 
-    public function where($field, $operator, $value) {
+	public function where($field, $operator, $value)
+	{
 		if (is_string($field)) {
 			$this->where[] = $this->buildWhereOperation($field, $operator, $value);
 			return $this;
@@ -157,48 +166,56 @@ class Table
 			}
 		}
 		throw new DataBaseException("Impossible to create query from arguments");
-    }
-
-    public function find(iterable $fields) {
-        $this->where = $this->buildWhereEqual($fields);
-        return $this;
-    }
-
-    public function leftJoin($table, iterable $on) {
-        return $this->join("LEFT", $table, $on);
-    }
-
-    public function rightJoin($table, iterable $on) {
-        return $this->join("RIGHT", $table, $on);
-    }
-
-    public function innerJoin($table, iterable $on) {
-        return $this->join("INNER", $table, $on);
-    }
-
-    public function orderBy($field, $mode) {
-        if (strpos($field, "(") === FALSE) {
-            $field = $this->identifier($field);
-        }
-        $this->order = " ORDER BY {$field} {$mode}";
-        return $this;
-    }
-
-    public function limit($initial, $end = NULL) {
-        $this->limit = " LIMIT {$initial}";
-
-        if ($end !== NULL) {
-            $this->limit .= ", {$end}";
-        }
-        return $this;
-    }
-
-	public function build() {
-		$this->sql = $this->select.$this->from.$this->buildWhere($this->where).$this->order.$this->limit;
 	}
 
-    public function toArray() {
-        $this->build();
+	public function find(iterable $fields)
+	{
+		$this->where = $this->buildWhereEqual($fields);
+		return $this;
+	}
+
+	public function leftJoin($table, iterable $on)
+	{
+		return $this->join("LEFT", $table, $on);
+	}
+
+	public function rightJoin($table, iterable $on)
+	{
+		return $this->join("RIGHT", $table, $on);
+	}
+
+	public function innerJoin($table, iterable $on)
+	{
+		return $this->join("INNER", $table, $on);
+	}
+
+	public function orderBy($field, $mode)
+	{
+		if (strpos($field, "(") === FALSE) {
+			$field = $this->identifier($field);
+		}
+		$this->order = " ORDER BY {$field} {$mode}";
+		return $this;
+	}
+
+	public function limit($initial, $end = NULL)
+	{
+		$this->limit = " LIMIT {$initial}";
+
+		if ($end !== NULL) {
+			$this->limit .= ", {$end}";
+		}
+		return $this;
+	}
+
+	public function build()
+	{
+		$this->sql = $this->select . $this->from . $this->buildWhere($this->where) . $this->order . $this->limit;
+	}
+
+	public function toArray()
+	{
+		$this->build();
 		$db = $this->getConnection();
 		$sql = $db->query($this->sql);
 		$this->restartQuery();
@@ -211,47 +228,56 @@ class Table
 		return $data;
 	}
 
-	public function toArrayList() {
+	public function toArrayList()
+	{
 		return new ArrayList($this->toArray());
 	}
 
-	public function getDB() {
+	public function getDB()
+	{
 		return $this->db;
 	}
 
-	public function getConnection() {
+	public function getConnection()
+	{
 		return $this->db->getConnection();
 	}
 
-	public function getName() {
+	public function getName()
+	{
 		return $this->name;
 	}
 
-	public function getIdName() {
+	public function getIdName()
+	{
 		return $this->idName;
 	}
 
-	public function getPrimaryKeys() {
+	public function getPrimaryKeys()
+	{
 		return $this->pk;
 	}
 
-	public function getForeignKeys() {
+	public function getForeignKeys()
+	{
 		return $this->fk;
 	}
 
-	public function pkValuesArray(array $fields) {
+	public function pkValuesArray(array $fields)
+	{
 		$ret = array();
 		$dbms = $this->db->getDBMS();
 		foreach ($this->pk as $value) {
 			if (!isset($fields[$value])) {
 				return FALSE;
 			}
-			$ret[] = $dbms->identifier($value)."=".$this->formatValue($fields[$value]);
+			$ret[] = $dbms->identifier($value) . "=" . $this->formatValue($fields[$value]);
 		}
 		return $ret;
 	}
 
-	public function pkValues($value) {
+	public function pkValues($value)
+	{
 		$array = $this->pkValuesArray((array)$value);
 		if ($array === FALSE) {
 			return FALSE;
@@ -259,30 +285,35 @@ class Table
 		return implode(" AND ", $array);
 	}
 
-	public function delete($fields) {
+	public function delete($fields)
+	{
 		$this->deletes[] = implode(" AND ", $this->buildWhereEqual($fields));
 		return $this;
 	}
 
-	public function deleteWhere($field, $operator, $value) {
-		$this->deletes[] = $this->identifier($field).$operator.$this->formatValue($value);
+	public function deleteWhere($field, $operator, $value)
+	{
+		$this->deletes[] = $this->identifier($field) . $operator . $this->formatValue($value);
 		return $this;
 	}
 
-	public function insert($value) {
+	public function insert($value)
+	{
 		$this->inserts[] = $value;
 		return $this;
 	}
 
-	public function update($value) {
+	public function update($value)
+	{
 		$this->sets[] = (array)$value;
 		return $this;
 	}
 
-	public function getInsertedRows() {
+	public function getInsertedRows()
+	{
 		$this->select = "SELECT *";
 		$this->from = " FROM {$this->idName}";
-		$this->where = array(implode(" OR ", array_map( function ($item) {
+		$this->where = array(implode(" OR ", array_map(function ($item) {
 			return implode(" AND ", $item);
 		}, $this->rowsInserted)));
 		$this->order = "";
@@ -290,55 +321,62 @@ class Table
 		return $this->toArrayList();
 	}
 
-	public function commit() {
+	public function commit()
+	{
 		$dbms = $this->db->getDBMS();
 		$insert = false;
 		$ret = 0;
+		$pdo = $this->getConnection();
 
-		if (count($this->sets)) {
-			$pdo = $this->getConnection();
-			$sql = '';
-			foreach ($this->sets as $item) {
-				$sql .= "UPDATE ".$this->idName." SET ".implode(",", array_map( function($key, $value) use($dbms) {
-					return $dbms->identifier($key)."=".$this->formatValue($value);
-				}, array_keys((array)$item), (array)$item)).
-				" WHERE ".$this->pkValues($item).";";
-			}
-			$sql = substr($sql, 0, -1);
-			$ret += $pdo->exec($sql);
-		}
-		if (count($this->deletes)) {
-			$pdo = $this->getConnection();
-			$sql = "DELETE FROM ".$this->idName." WHERE ".implode(" OR ", array_map( function($item) {
-				return "({$item})";
-			}, $this->deletes));
-			$ret += $pdo->exec($sql);
-		}
-		if (count($this->inserts)) {
-			$pdo = $this->getConnection();
-			$this->rowsInserted = array();
-			foreach ($this->inserts as $key => $insert) {
-				$sql = "INSERT INTO ".$this->idName
-				."(".implode(",", array_map( function($key) use($dbms) {
-					return $dbms->identifier($key);
-				}, array_keys((array)$insert))).")VALUES";
-				$sql .= "(".implode(",", array_map( function($value) {
-					return $this->formatValue($value);
-				}, (array)$insert)).")";
-				$ret += $pdo->exec($sql);
-				$keys = $this->pkValuesArray($insert);
+		try {
+			$pdo->beginTransaction();
 
-				if ($keys !== FALSE) {
-					$this->rowsInserted[] = $keys;
-				} else {
-					$keys = array();
-					foreach ($this->pk as $field) {
-						$keys[] = $this->identifier($field)."=".$pdo->lastInsertId($field);
-					}
-					$this->rowsInserted[] = $keys;
+			if (count($this->sets)) {
+				$sql = '';
+				foreach ($this->sets as $item) {
+					$sql .= "UPDATE " . $this->idName . " SET " . implode(",", array_map(function ($key, $value) use ($dbms) {
+						return $dbms->identifier($key) . "=" . $this->formatValue($value);
+					}, array_keys((array)$item), (array)$item)) .
+						" WHERE " . $this->pkValues($item) . ";";
 				}
+				$sql = substr($sql, 0, -1);
+				$ret += $pdo->exec($sql);
 			}
-			$insert = true;
+			if (count($this->deletes)) {
+				$sql = "DELETE FROM " . $this->idName . " WHERE " . implode(" OR ", array_map(function ($item) {
+					return "({$item})";
+				}, $this->deletes));
+				$ret += $pdo->exec($sql);
+			}
+			if (count($this->inserts)) {
+				$this->rowsInserted = array();
+				foreach ($this->inserts as $key => $insert) {
+					$sql = "INSERT INTO " . $this->idName
+						. "(" . implode(",", array_map(function ($key) use ($dbms) {
+							return $dbms->identifier($key);
+						}, array_keys((array)$insert))) . ")VALUES";
+					$sql .= "(" . implode(",", array_map(function ($value) {
+						return $this->formatValue($value);
+					}, (array)$insert)) . ")";
+					$ret += $pdo->exec($sql);
+					$keys = $this->pkValuesArray($insert);
+
+					if ($keys !== FALSE) {
+						$this->rowsInserted[] = $keys;
+					} else {
+						$keys = array();
+						foreach ($this->pk as $field) {
+							$keys[] = $this->identifier($field) . "=" . $pdo->lastInsertId($field);
+						}
+						$this->rowsInserted[] = $keys;
+					}
+				}
+				$insert = true;
+			}
+			$pdo->commit();
+		} catch (Exception $e) {
+			$pdo->rollBack();
+			throw $e;
 		}
 		$this->sets = array();
 		$this->deletes = array();

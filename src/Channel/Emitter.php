@@ -32,11 +32,10 @@ class Emitter
     if (isset($opts["expires"])) {
       $opts["expires"] = time() + $opts["expires"];
     }
-    $content = json_encode([
+    $content = json_encode(array_merge([
       'event' => $event,
-      'data' => $data,
-      ...$opts
-    ]);
+      'data' => $data
+    ], $opts));
     $filename = "{$this->path}/".floor(microtime(true) * 1000);
     file_put_contents($filename, $content);
   }

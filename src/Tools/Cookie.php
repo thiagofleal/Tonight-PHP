@@ -39,7 +39,7 @@ class Cookie
 	public static function setEmpty($key, ...$args)
 	{
 		if (!isset($_COOKIE[$key])) {
-			self::set($value, ...$args);
+			self::set($key, ...$args);
 		}
 	}
 
