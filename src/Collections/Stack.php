@@ -4,6 +4,7 @@ namespace Tonight\Collections;
 
 class Stack extends Collection
 {
+	private $current = -1;
 	private $data;
 	private $size;
 

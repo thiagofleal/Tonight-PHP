@@ -14,8 +14,7 @@ abstract class Collection implements Iterator
 
 	public abstract function newInstance($data);
 
-	public function forEach(callable $func)
-	{
+	public function forEach(callable $func) {
 		$this->rewind();
 		while ($this->valid()) {
 			$key = $this->key();
@@ -23,10 +22,5 @@ abstract class Collection implements Iterator
 			$func($key, $value);
 			$this->next();
 		}
-	}
-
-	public function each()
-	{
-		return each($this);
 	}
 }

@@ -1,20 +1,20 @@
 {
-    "name": "thiagofleal/tonight-php",
-    "authors": [
-        {
-            "name": "Thiago Fernandes Leal",
-            "email": "contato@thiagofleal.com.br"
-        }
-    ],
-    "type":"library",
-    "version":"3.0.0",
-    "minimum-stability":"dev",
-    "require": {
-        "php":">=5.6"
-    },
-    "autoload": {
-    	"psr-4": {
-            "Tonight\\":"src/"
-    	}
+  "name": "thiagofleal/tonight-php",
+  "authors": [
+    {
+      "name": "Thiago Fernandes Leal",
+      "email": "contato@thiagofleal.com.br"
     }
+  ],
+  "type": "library",
+  "version": "3.0.0",
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=5.6"
+  },
+  "autoload": {
+    "psr-4": {
+      "Tonight\\": "src/"
+    }
+  }
 }

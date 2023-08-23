@@ -3,6 +3,7 @@
 namespace Tonight\Exceptions;
 
 use Exception;
+use Throwable;
 
 class TonightException extends Exception
 {

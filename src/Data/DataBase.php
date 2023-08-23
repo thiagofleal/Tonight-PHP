@@ -51,9 +51,9 @@ class DataBase
 		$this->{$table} = new Table($this, $table);
 	}
 
-	public function getTable($name, $load = true)
+	public function getTable($name)
 	{
-		return new Table($this, $name, $load);
+		return new Table($this, $name);
 	}
 
 	public function getDBMS() { return $this->dbms; }

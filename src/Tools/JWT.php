@@ -12,17 +12,17 @@ class JWT
 
 	public function __construct($key)
 	{
-		$this->key = md5($key);
+		$this->key = $key;
 	}
 
-	public function create(array $content, $exp=0)
+	public function create(array $content, $exp = 0)
 	{
-		$header = json_encode(array('typ'=>"JWT", 'alg'=>"HS256"));
+		$header = json_encode(array('type' => "JWT", 'alg' => "HS256"));
 
 		$time = time();
 		$exp = $exp ? ($time + $exp) : NULL;
 
-		$data = array('iat'=>$time, 'exp'=>$exp);
+		$data = array('iat' => $time, 'exp' => $exp);
 
 		foreach ($content as $key => $value) {
 			$data[$key] = $value;

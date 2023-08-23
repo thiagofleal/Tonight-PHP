@@ -2,8 +2,6 @@
 
 namespace Tonight\MVC;
 
-use json_encode;
-
 class Controller
 {
 	private $view;
@@ -79,7 +77,6 @@ class Controller
 				$array[$key] = $value;
 			}
 		}
-
 		return json_encode($array);
 	}
 

@@ -2,8 +2,6 @@
 
 namespace Tonight\Collections;
 
-use ARRAY_FILTER_USE_BOTH;
-
 class ArrayList extends Collection
 {
 	private $data;
@@ -91,7 +89,7 @@ class ArrayList extends Collection
 	public function lastKey()
 	{
 		$last = NULL;
-		foreach ($this->data as $key => $value) {
+		foreach ($this->data as $key) {
 			$last = $key;
 		}
 		return $last;
@@ -242,7 +240,7 @@ class ArrayList extends Collection
 		return $this->newInstance($ret);
 	}
 
-	public function interval($begin, $length=0)
+	public function interval($begin, $length = 0)
 	{
 		$array = array();
 		$current_end = $this->count() - 1;

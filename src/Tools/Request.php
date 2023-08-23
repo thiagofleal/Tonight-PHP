@@ -11,6 +11,7 @@ class Request
 	private $post;
 	private $files;
 	private $current;
+	private $patch;
 	private $put;
 	private $delete;
 	private $head;
@@ -99,6 +100,11 @@ class Request
 		return self::values($this->current, $keys, $default);
 	}
 
+	public function patch($keys = NULL, $default = NULL)
+	{
+		return self::values($this->patch, $keys, $default);
+	}
+
 	public function put($keys = NULL, $default = NULL)
 	{
 		return self::values($this->put, $keys, $default);
@@ -135,6 +141,13 @@ class Request
 	{
 		if ($this->getMethod() === 'POST') {
 			$callback($this->post);
+		}
+	}
+
+	public function onPatch(callable $callback)
+	{
+		if ($this->getMethod() === 'PATCH') {
+			$callback($this->put);
 		}
 	}
 
